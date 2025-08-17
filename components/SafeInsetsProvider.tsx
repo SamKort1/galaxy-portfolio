@@ -7,7 +7,7 @@ export default function SafeInsetsProvider() {
         const apply = () => {
             const header = document.getElementById("site-header");
             const footer = document.getElementById("site-footer");
-            const top = (header?.offsetHeight || 0) + 8;    // small breathing room
+            const top = (header?.offsetHeight || 0) + 8;
             const bottom = (footer?.offsetHeight || 0) + 8;
 
             document.documentElement.style.setProperty("--safe-top", `${top}px`);

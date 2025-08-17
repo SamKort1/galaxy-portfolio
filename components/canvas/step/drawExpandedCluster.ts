@@ -1,15 +1,15 @@
 import type {StepEnv} from "./env";
-import {drawProjectGem, drawSkillChip, roundRectPath} from "./drawHelpers";
+import {drawProjectGem, drawSkillChip} from "./drawHelpers";
 
 export function drawExpandedCluster(env: StepEnv) {
     const {
         graph, expandedCluster, clusters, timeRef, prefersReducedMotion,
         skills, projects, contactLinks, ctx, visited, projectHit,
         roundedRectPath,
-        aboutFacts, funFacts,              // ← add these
+        aboutFacts, funFacts,
     } = env;
 
-    // -------- Satellites for expanded cluster (projects/skills/about/contact) --------
+    // -------- Satellites for expanded cluster --------
     projectHit.current = [];
     if (expandedCluster) {
         const hub = graph.current.nodes.find((n) => n.isHub && n.clusterId === expandedCluster)!;
@@ -43,7 +43,6 @@ export function drawExpandedCluster(env: StepEnv) {
                 const skillOrbit = skillBase + Math.sin(timeRef.current * 0.5) * 4;
                 const skillSpeed = prefersReducedMotion ? 0.05 : 0.2;
 
-                // optional faint orbit guide
                 ctx.beginPath();
                 ctx.strokeStyle = `rgba(${r},${g},${bcol},0.10)`;
                 ctx.lineWidth = 1;
@@ -55,7 +54,6 @@ export function drawExpandedCluster(env: StepEnv) {
                     const sx = hub.x + Math.cos(angle) * skillOrbit;
                     const sy = hub.y + Math.sin(angle) * skillOrbit;
 
-                    // Fancy chip with soft glow + subtle breathing
                     drawSkillChip(ctx, sx, sy, label, {
                         r,
                         g,
@@ -65,11 +63,11 @@ export function drawExpandedCluster(env: StepEnv) {
                 });
             }
 
-            // --- Projects outer ring (gem style) ---
+            // --- Projects outer ring ---
             const key = expandedCluster as Exclude<typeof expandedCluster, "about" | "contact">;
             const projectList = projects.filter((p) => p.cluster === key);
 
-            const projBase = 190;
+            const projBase = 170;
             const projOrbit = projBase + Math.sin(timeRef.current * 0.7) * 6;
             const projSpeed = prefersReducedMotion ? 0.1 : 0.35;
 
@@ -102,33 +100,36 @@ export function drawExpandedCluster(env: StepEnv) {
             });
         }
         // --- About ---
-        // --- About ---
         if (expandedCluster === "about") {
             const list = [...aboutFacts, ...funFacts];
             if (list.length) {
                 const PAGE = 4;
                 const pageCount = Math.ceil(list.length / PAGE);
 
-                const PERIOD = 2.8;
-                const XFADE = 0.9;
-                const tPage = timeRef.current / PERIOD;
-                const frac = tPage - Math.floor(tPage);
-                const curPage = Math.floor(tPage) % pageCount;
-                const nextPage = (curPage + 1) % pageCount;
+                // Timing
+                const PERIOD = 3.2;   // total time each page is shown
+                const XFADE  = 0.9;   // cross-fade duration at the start of each cycle
+                const t      = timeRef.current;
 
-                const ease01 = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
-                const transRatio = XFADE / PERIOD;
+                // Progress within current cycle [0..PERIOD)
+                const phaseSecs = ((t % PERIOD) + PERIOD) % PERIOD;
 
-                const k = frac < transRatio ? ease01(frac / transRatio) : 0;
+                // Cross-fade amount k: 0→1 only during the first XFADE seconds of the cycle
+                const smooth01 = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+                const k = phaseSecs < XFADE ? smooth01(phaseSecs / XFADE) : 0;
+
+                // Compute from/to pages in a way that stays stable across the entire XFADE window:
+                // Shift "t" back by XFADE so "fromPage" is locked to the previous cycle while blending.
+                const fromStep = Math.floor((t - XFADE) / PERIOD);
+                const posMod   = (a: number, m: number) => ((a % m) + m) % m;
+                const fromPage = posMod(fromStep, pageCount);
+                const toPage   = (fromPage + 1) % pageCount;
 
                 const getSlice = (p: number) => list.slice(p * PAGE, p * PAGE + PAGE);
 
-                const orbit = 170;
-                const baseSpeed = env.prefersReducedMotion ? 0.03 : 0.09;
-                const angleBase = timeRef.current * baseSpeed;
-
-                const angleOffset = 0.22;
-                const snapToHalf = (v: number) => Math.round(v) + 0.5;
+                const orbit = 160;
+                const baseSpeed = env.prefersReducedMotion ? 0.02 : 0.07;
+                const angleBase = t * baseSpeed;
 
                 // faint orbit guide
                 ctx.beginPath();
@@ -137,55 +138,53 @@ export function drawExpandedCluster(env: StepEnv) {
                 ctx.arc(hub.x, hub.y, orbit, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // Use drawSkillChip instead of dot + pill
-                const drawPage = (items: string[], alpha: number, slide: number, offsetSign: number) => {
-                    const n = Math.max(1, items.length);
-                    items.forEach((label, i) => {
-                        const angle = angleBase + (i / n) * Math.PI * 2 + offsetSign * angleOffset * alpha;
-                        const rad = orbit + slide;
+                const slidePx = 10; // subtle radial slide
 
-                        const x = snapToHalf(hub.x + Math.cos(angle) * rad);
-                        const y = snapToHalf(hub.y + Math.sin(angle) * rad);
+                const drawPage = (items: string[], alpha: number, slideSign: number) => {
+                    const n = Math.max(1, items.length);
+                    for (let i = 0; i < n; i++) {
+                        const label = items[i];
+                        const angle = angleBase + (i / n) * Math.PI * 2;
+                        const rad   = orbit + slideSign * slidePx * (1 - alpha);
+                        const x = Math.round(hub.x + Math.cos(angle) * rad) + 0.5;
+                        const y = Math.round(hub.y + Math.sin(angle) * rad) + 0.5;
 
                         ctx.save();
                         ctx.globalAlpha = alpha;
-                        drawSkillChip(ctx, x, y, label, {
-                            r,
-                            g,
-                            b: bcol,
-                            time: timeRef.current,
-                        });
+                        drawSkillChip(ctx, x, y, label, { r, g, b: bcol, time: t });
                         ctx.restore();
-                    });
+                    }
                 };
 
-                const currentItems = getSlice(curPage);
-                const nextItems = getSlice(nextPage);
+                const currentItems = getSlice(fromPage);
+                const nextItems    = getSlice(toPage);
 
-                // current fades out, next fades in
-                drawPage(currentItems, 1 - k, 6 * k, -1);
-                drawPage(nextItems, k, 6 * (1 - k), +1);
+                // current fades out + slides slightly inward
+                drawPage(currentItems, 1 - k, -1);
+                // next fades in + slides slightly outward
+                drawPage(nextItems, k, +1);
 
-                // page dots
+                // page dots (blend between the two)
                 const dotsY = hub.y + 28;
                 for (let i = 0; i < pageCount; i++) {
                     const ddx = (i - (pageCount - 1) / 2) * 14;
                     ctx.beginPath();
-                    const activeAlpha = i === curPage ? 1 - k : i === nextPage ? k : 0;
-                    ctx.fillStyle = activeAlpha > 0
-                        ? `rgba(${r},${g},${bcol},${0.25 + 0.65 * activeAlpha})`
-                        : "rgba(255,255,255,0.2)";
+                    const activeAlpha = i === fromPage ? 1 - k : i === toPage ? k : 0;
+                    ctx.fillStyle =
+                        activeAlpha > 0
+                            ? `rgba(${r},${g},${bcol},${0.25 + 0.65 * activeAlpha})`
+                            : "rgba(255,255,255,0.2)";
                     ctx.arc(hub.x + ddx, dotsY, 2 + activeAlpha, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
         }
 
-        // --- Contact ---
+
         // --- Contact ---
         if (expandedCluster === "contact") {
             const list = contactLinks;
-            const base = 200;
+            const base = 170;
             const orbit = base + Math.sin(timeRef.current * 0.5) * 4;
             const speed = env.prefersReducedMotion ? 0.06 : 0.2;
 

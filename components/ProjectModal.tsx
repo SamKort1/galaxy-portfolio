@@ -27,7 +27,6 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
     const panelRef = useRef<HTMLDivElement | null>(null);
     const tiltRef = useRef<HTMLDivElement | null>(null);
 
-    // Build media list (image(s) + optional video)
     const media = useMemo(() => {
         const list: Array<{ type: "image" | "video"; src: string }> = [];
         const g = (project as any).gallery as string[] | undefined;
@@ -38,7 +37,6 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
         return list;
     }, [project]);
 
-    // Open animation
     useEffect(() => {
         const id = requestAnimationFrame(() => setVisible(true));
         return () => cancelAnimationFrame(id);
@@ -57,14 +55,12 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
         return () => window.removeEventListener("keydown", onKey);
     }, [media.length, onClose, project.repoUrl, project.demoUrl]);
 
-    // Prevent scroll behind modal
     useEffect(() => {
         const original = document.body.style.overflow;
         document.body.style.overflow = "hidden";
         return () => { document.body.style.overflow = original; };
     }, []);
 
-    // Hover tilt for media
     useEffect(() => {
         const el = tiltRef.current;
         if (!el) return;
@@ -211,7 +207,6 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                     aria-hidden={idx !== active}
                                 >
                                     {m.type === "image" ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                             src={m.src}
                                             alt={project.title}
@@ -279,7 +274,6 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                         title={`Slide ${i + 1}`}
                                     >
                                         {m.type === "image" ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img src={m.src} alt="" className="h-full w-full object-cover" />
                                         ) : (
                                             <div className="h-full w-full grid place-items-center text-xs text-white/80 bg-black/40">Video</div>

@@ -1,4 +1,3 @@
-// drawNodes.ts
 import type { StepEnv } from "./env";
 import {drawHubFancy, drawHubLabel, drawOrbitalNode} from "./drawHelpers";
 
@@ -17,7 +16,6 @@ export function drawNodes(env: StepEnv) {
         if (cluster) clusterHex = cluster.color;
 
         if (n.isHub) {
-            // Fancy hub (replaces old radial glow + solid circle)
             drawHubFancy(
                 ctx,
                 n.x,
@@ -28,7 +26,6 @@ export function drawNodes(env: StepEnv) {
                 timeRef.current
             );
 
-            // Nicer pill label
             const label = cluster?.name ?? n.clusterId;
             const [r, g, b] = [
                 parseInt(clusterHex.slice(1, 3), 16),
@@ -37,9 +34,9 @@ export function drawNodes(env: StepEnv) {
             ];
             drawHubLabel(ctx, n.x, n.y, label, { r, g, b });
         } else {
-            // Satellite: subtle glow + twinkle (replaces plain filled circle)
+            // Satellite: subtle glow + twinkle
             ctx.save();
-            ctx.globalAlpha = alpha; // keep your hover emphasis behavior
+            ctx.globalAlpha = alpha;
             drawOrbitalNode(ctx, n.x, n.y, Math.max(2, n.r), clusterHex, timeRef.current, {
                 outline: false,
                 innerGlow: true,

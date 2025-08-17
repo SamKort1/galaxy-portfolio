@@ -1,15 +1,13 @@
 import type { StepEnv } from "./env";
 
-export function physicsHubs(env: StepEnv, dt: number) {
+export function physicsHubs(env: StepEnv) {
     const { graph, anchors, CALM, prefersReducedMotion, attract } = env;
     const { nodes } = graph.current;
 
-    // Hubs: gentle physics only
     for (const n of nodes) {
         if (!n.isHub) continue;
         const anchor = anchors.current[n.clusterId];
         if (anchor) {
-            // attract() is your existing helper
             attract(n, anchor, CALM.hubAttract);
         }
         if (!prefersReducedMotion) {

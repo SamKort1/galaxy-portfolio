@@ -18,7 +18,6 @@ export function runStep(env: StepEnv, t: number, last: number) {
 
     env.timeRef.current += dt;
 
-    // keep the exact order
     clearAndPrepCanvas(env);
     spawnShootingStars(env);
     updateShootingStars(env, dt);

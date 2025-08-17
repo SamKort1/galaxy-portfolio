@@ -15,7 +15,6 @@ export default function AboutPanel({
     onDownloadCV: () => void;
     onContact: () => void;
 }) {
-    // show the arrow only when the timeline can scroll and isn't at the end
     const listRef = useRef<HTMLUListElement | null>(null);
     const [showArrow, setShowArrow] = useState(true);
 

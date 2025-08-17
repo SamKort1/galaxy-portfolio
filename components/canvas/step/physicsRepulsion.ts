@@ -4,7 +4,6 @@ export function physicsRepulsion(env: StepEnv) {
     const { graph } = env;
     const { nodes } = graph.current;
 
-    // Repulsion for hubs (skip satellite-satellite)
     for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
             const a = nodes[i], b = nodes[j];

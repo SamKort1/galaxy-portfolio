@@ -1,42 +1,9 @@
-// drawHelpers.ts
 export function hexToRGB(hex: string): [number, number, number] {
     const h = hex.replace("#", "");
     const r = parseInt(h.slice(0, 2), 16);
     const g = parseInt(h.slice(2, 4), 16);
     const b = parseInt(h.slice(4, 6), 16);
     return [r, g, b];
-}
-
-export function drawLabelPill(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    text: string,
-    maxWidth = 260,
-    pad = 8
-) {
-    ctx.save();
-    ctx.font = "12px Inter, ui-sans-serif, system-ui, sans-serif";
-    // clip text to fit
-    let t = text;
-    while (ctx.measureText(t + "…").width > maxWidth - pad * 2 && t.length > 1) t = t.slice(0, -1);
-    const clipped = ctx.measureText(text).width > maxWidth - pad * 2 ? t + "…" : text;
-
-    const w = Math.min(ctx.measureText(clipped).width + pad * 2, maxWidth);
-    const h = 20;
-    const rx = 8;
-    const left = x - w / 2;
-    const top = y - h - 12;
-
-    // pill bg
-    roundRectPath(ctx, left, top, w, h, rx);
-    ctx.fillStyle = "rgba(16,18,28,0.45)";
-    ctx.fill();
-
-    // text
-    ctx.fillStyle = "rgba(235,240,255,0.92)";
-    ctx.fillText(clipped, left + pad, top + h - 6);
-    ctx.restore();
 }
 
 export function drawHubFancy(
@@ -50,7 +17,6 @@ export function drawHubFancy(
 ) {
     const [cr, cg, cb] = hexToRGB(colorHex);
 
-    // outer soft aura (breathing)
     const pulse = 0.25 + 0.15 * Math.sin(time * 2);
     const rr = hovered ? Math.min(255, cr + 35) : cr;
     const gg = hovered ? Math.min(255, cg + 35) : cg;
@@ -100,7 +66,7 @@ export function drawOrbitalNode(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    radius: number,        // node radius (not orbit radius)
+    radius: number, // node radius (not orbit radius)
     colorHex: string,
     time: number,
     opts?: {
@@ -112,7 +78,6 @@ export function drawOrbitalNode(
 ) {
     const [cr, cg, cb] = hexToRGB(colorHex);
 
-    // optional faint line to hub or orbit ring anchor
     if (opts?.lineToHub) {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.18)`;
@@ -121,7 +86,7 @@ export function drawOrbitalNode(
         ctx.lineTo(x, y);
         ctx.stroke();
 
-        // orbit guide (optional)
+        // orbit guide
         if (opts.lineToHub.orbitRadius) {
             ctx.beginPath();
             ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.12)`;
@@ -201,8 +166,6 @@ export function roundRectPath(
     ctx.quadraticCurveTo(x, y, x + rr, y);
 }
 
-
-// drawHelpers.ts
 
 export function drawSkillChip(
     ctx: CanvasRenderingContext2D,
@@ -332,14 +295,12 @@ export function drawHubLabel(
 ) {
     ctx.font = "600 16px Inter, ui-sans-serif, system-ui, sans-serif";
     const padX = 12;
-    const padY = 6;
     const textW = ctx.measureText(label).width;
     const w = textW + padX * 2;
     const h = 28;
     const left = x - w / 2;
     const top = y - h - 30;
 
-    // background pill with glow
     const grad = ctx.createLinearGradient(left, top, left, top + h);
     grad.addColorStop(0, `rgba(${r},${g},${b},0.35)`);
     grad.addColorStop(1, `rgba(${r},${g},${b},0.15)`);

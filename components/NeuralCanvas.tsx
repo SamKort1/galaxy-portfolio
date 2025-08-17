@@ -1,6 +1,7 @@
 "use client";
 
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
+import {Cluster} from "./canvas/step/env";
 import {useRouter} from "next/navigation";
 import type {ContactLink} from "../app/data/contact";
 import {Project, skills} from "../app/data/projects";
@@ -11,29 +12,21 @@ import { generateBackgroundStarfield, drawBackgroundStarfield, BackgroundStar } 
 import {roundRectPath} from "./canvas/step/drawHelpers";
 
 const CALM = {
-    hubAttract: 0.005, // was 0.008
-    hubJiggle: 0.001,  // was 0.002
-    damping: 0.92,     // was 0.95
-    orbitOmegaMin: 0.04,
-    orbitOmegaMax: 0.08,
-    orbitWobbleAmp: 2,
-    orbitWobbleFreq: 0.6,
+    hubAttract: 0.005,
+    hubJiggle: 1.5,
+    damping: 0.8,
+    orbitOmegaMin: 0.1,
+    orbitOmegaMax: 0.1,
+    orbitWobbleAmp: 4,
+    orbitWobbleFreq: 2,
     anchorWobbleAmp: 1.2,
-    anchorWobbleFreq: 0.15,
-    edgeBaseAlpha: 0.08,
-    edgePulseAmp: 0.03,
-    edgePulseFreq: 0.6,
-    zoomScale: 1.45,
-    zoomDuration: 700,
+    anchorWobbleFreq: 2,
+    edgeBaseAlpha: 0.2,
+    edgePulseAmp: 0.005,
+    edgePulseFreq: 1,
+    zoomScale: 1.7,
+    zoomDuration: 1000,
     unzoomDuration: 600,
-};
-
-
-export type Cluster = {
-    id: "frontend" | "backend" | "ai" | "cloud" | "about" | "contact";
-    name: string;
-    color: string;
-    route: string;
 };
 
 type Node = {
@@ -43,7 +36,7 @@ type Node = {
     vx: number;
     vy: number;
     r: number;
-    clusterId: string; // keep wide so About/Contact work without extra casting
+    clusterId: string;
     isHub?: boolean;
     pulse?: number;
     // continuous orbit params for satellites
@@ -71,7 +64,7 @@ function rand(min: number, max: number) {
 }
 
 export default function NeuralCanvas({
-                                         clusters: inputClusters,
+                                         clusters,
                                          projects,
                                          onProjectSelect,
                                          aboutFacts,
@@ -84,14 +77,13 @@ export default function NeuralCanvas({
                                          aboutTimeline,
                                          aboutCVUrl,
                                      }: {
-    clusters?: Cluster[];
+    clusters: Cluster[];
     projects: Project[];
     onProjectSelect: (payload: any) => void;
     aboutFacts: string[];
     funFacts: string[];
     contactLinks: ContactLink[];
     onOpenContactModal: () => void;
-    // NEW 👇
     aboutBio?: string;
     aboutPhotoUrl?: string;
     aboutHighlights?: { label: string; value: string }[];
@@ -110,7 +102,7 @@ export default function NeuralCanvas({
     const timeRef = useRef(0);
     const visited = useRef<Set<string>>(new Set()); // clicked projects
 
-    const SHOOTING_COUNT = 15; // max active at once
+    const SHOOTING_COUNT = 25;
     const shootingRef = useRef<{
         x: number; y: number; vx: number; vy: number;
         r: number; hue: number; life: number; maxLife: number;
@@ -118,24 +110,10 @@ export default function NeuralCanvas({
 
     const starfieldRef = useRef<BackgroundStar[]>([]);
 
-
-    const clusters: Cluster[] = useMemo(
-        () =>
-            inputClusters ??
-            ([
-                {id: "frontend", name: "Frontend", color: "#22d3ee", route: "/frontend"},
-                {id: "backend", name: "Backend", color: "#34d399", route: "/backend"},
-                {id: "ai", name: "AI & Blockchain", color: "#f59e0b", route: "/ai-blockchain"},
-                {id: "cloud", name: "Cloud & Agile", color: "#60a5fa", route: "/cloud-agile"},
-            ] as Cluster[]),
-        [inputClusters]
-    );
-
     const graph = useRef<{ nodes: Node[]; edges: Edge[] }>({nodes: [], edges: []});
     const anchors = useRef<Record<string, { x: number; y: number }>>({});
     const projectHit = useRef<{ id: string; x: number; y: number; r: number }[]>([]);
 
-    // sizing with safe insets
     useEffect(() => {
         const canvas = canvasRef.current!;
         const resize = () => {
@@ -181,7 +159,7 @@ export default function NeuralCanvas({
             {id: "backend", x: w * 0.78, y: h * 0.35},
             {id: "ai", x: w * 0.30, y: h * 0.70},
             {id: "cloud", x: w * 0.70, y: h * 0.70},
-            {id: "about", x: w * 0.50, y: h * 0.45},  // center
+            {id: "about", x: w * 0.50, y: h * 0.3},  // center
             {id: "contact", x: w * 0.50, y: h * 0.60},  // below about
         ];
         anchors.current = anchorPositions.reduce(
@@ -201,12 +179,12 @@ export default function NeuralCanvas({
                 y: (anchors.current[id]?.y ?? h * 0.5) + rand(-10, 10),
                 vx: 0,
                 vy: 0,
-                r: 22,
+                r: 25,
                 clusterId: id,
                 isHub: true,
             });
             // satellites
-            const satellites = 8;
+            const satellites = 12;
             for (let i = 0; i < satellites; i++) {
                 const baseR = rand(70, 140);
                 const theta = rand(0, Math.PI * 2);
@@ -427,13 +405,6 @@ export default function NeuralCanvas({
             if (hoverId === null) return;
             const n = nodes[hoverId];
             if (!n.isHub) return;
-
-            // second click of same hub → navigate
-            if (expandedCluster === (n.clusterId as any)) {
-                const dest = clusters.find((c) => c.id === n.clusterId)?.route;
-                if (dest && dest !== "#") router.push(dest);
-                return;
-            }
 
             // expand hub + zoom
             n.pulse = 0.01;

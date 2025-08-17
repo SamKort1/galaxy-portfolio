@@ -16,7 +16,6 @@ export const funFacts: string[] = [
 ];
 
 
-// NEW: rich About data
 export const aboutBio =
     "I am Sam, Software engineer focused on front-end, back-end, and applied AI. I love building delightful, fast user experiences and solving complex problems with simple, maintainable code.";
 

@@ -3,7 +3,7 @@
 import NeuralCanvas from "../components/NeuralCanvas";
 import ProjectModal from "../components/ProjectModal";
 import ContactModal from "../components/ContactModal";
-import CometOverlay from "../components/CometOverlay"; // <-- NEW
+import CometOverlay from "../components/CometOverlay";
 import { projects } from "./data/projects";
 import {aboutBio, aboutCVUrl, aboutFacts, aboutHighlights, aboutPhotoUrl, aboutTimeline, funFacts} from "./data/about";
 import { contactLinks } from "./data/contact";
@@ -22,7 +22,6 @@ export default function HomePage() {
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const [contactOpen, setContactOpen] = useState(false);
 
-    // NEW: comet state
     const [comet, setComet] = useState<null | { x: number; y: number; color?: string; projectId: string }>(null);
 
     const activeProject = useMemo(
@@ -43,25 +42,20 @@ export default function HomePage() {
         | undefined;
 
     const handleProjectSelect = (payload: ProjectClickPayload) => {
-        // ignore “clear” calls
         if (!payload) return;
 
-        // plain id (no comet)
         if (typeof payload === "string") {
             setActiveProjectId(payload);
             return;
         }
 
-        // object payload (comet-enabled)
         const { id, x, y, color } = payload;
 
-        // if coords weren’t provided, just open the modal
         if (typeof x !== "number" || typeof y !== "number") {
             setActiveProjectId(id);
             return;
         }
 
-        // play comet, then open modal
         setComet({ x, y, color, projectId: id });
     };
 

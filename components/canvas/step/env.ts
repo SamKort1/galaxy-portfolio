@@ -8,7 +8,7 @@ export type Node = {
 
 export type Edge = { a:number; b:number; clusterId:string; cross?:boolean };
 
-export type Cluster = { id:string; name:string; color:string; route:string };
+export type Cluster = { id:string; name:string; color:string; };
 
 export type StepEnv = {
     // timing
@@ -50,7 +50,7 @@ export type StepEnv = {
     visited: MutableRefObject<Set<string>>;
     projectHit: MutableRefObject<{ id:string; x:number; y:number; r:number }[]>;
 
-    // helpers from the component (we reuse your exact code)
+    // helpers from the component
     attract: (node: Node, target: {x:number;y:number}, strength:number) => void;
     roundedRectPath: (ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number)=>void;
     drawPillLabelAlpha: (ctx:CanvasRenderingContext2D,x:number,y:number,text:string,maxWidth?:number,alpha?:number,pad?:number)=>void;

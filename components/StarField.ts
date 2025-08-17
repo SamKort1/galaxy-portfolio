@@ -1,4 +1,3 @@
-// utils/Starfield.ts
 export type BackgroundStar = {
     x: number;
     y: number;
