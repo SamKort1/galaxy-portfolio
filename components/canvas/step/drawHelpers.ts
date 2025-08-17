@@ -172,12 +172,20 @@ export function drawSkillChip(
     x: number,
     y: number,
     label: string,
-    color: { r: number; g: number; b: number; time?: number; hover?: boolean }
+    opts: {
+        r: number;
+        g: number;
+        b: number;
+        time?: number;
+        hover?: boolean;
+        padX?: number;
+        padY?: number;
+    }
 ) {
-    const { r, g, b, time = 0, hover = false } = color;
+    const { r, g, b, time = 0, hover = false, padX = 8, padY = 4 } = opts;
 
-    const w = ctx.measureText(label).width + 16;
-    const h = 22;
+    const w = ctx.measureText(label).width + padX * 2;
+    const h = padY;
     const pulse = 0.25 + 0.15 * Math.sin(time * 2);
     const alpha = hover ? 0.9 : 0.7;
 

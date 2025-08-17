@@ -59,6 +59,8 @@ export function drawExpandedCluster(env: StepEnv) {
                         g,
                         b: bcol,
                         time: timeRef.current,
+                        padX: 8,
+                        padY: 22
                     });
                 });
             }
@@ -108,18 +110,14 @@ export function drawExpandedCluster(env: StepEnv) {
 
                 // Timing
                 const PERIOD = 3.2;   // total time each page is shown
-                const XFADE  = 0.9;   // cross-fade duration at the start of each cycle
+                const XFADE  = 1;   // cross-fade duration at the start of each cycle
                 const t      = timeRef.current;
 
-                // Progress within current cycle [0..PERIOD)
                 const phaseSecs = ((t % PERIOD) + PERIOD) % PERIOD;
 
-                // Cross-fade amount k: 0→1 only during the first XFADE seconds of the cycle
                 const smooth01 = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
                 const k = phaseSecs < XFADE ? smooth01(phaseSecs / XFADE) : 0;
 
-                // Compute from/to pages in a way that stays stable across the entire XFADE window:
-                // Shift "t" back by XFADE so "fromPage" is locked to the previous cycle while blending.
                 const fromStep = Math.floor((t - XFADE) / PERIOD);
                 const posMod   = (a: number, m: number) => ((a % m) + m) % m;
                 const fromPage = posMod(fromStep, pageCount);
@@ -127,7 +125,7 @@ export function drawExpandedCluster(env: StepEnv) {
 
                 const getSlice = (p: number) => list.slice(p * PAGE, p * PAGE + PAGE);
 
-                const orbit = 160;
+                const orbit = 130;
                 const baseSpeed = env.prefersReducedMotion ? 0.02 : 0.07;
                 const angleBase = t * baseSpeed;
 
@@ -146,12 +144,12 @@ export function drawExpandedCluster(env: StepEnv) {
                         const label = items[i];
                         const angle = angleBase + (i / n) * Math.PI * 2;
                         const rad   = orbit + slideSign * slidePx * (1 - alpha);
-                        const x = Math.round(hub.x + Math.cos(angle) * rad) + 0.5;
-                        const y = Math.round(hub.y + Math.sin(angle) * rad) + 0.5;
+                        const x = hub.x + Math.cos(angle) * rad;
+                        const y = hub.y + Math.sin(angle) * rad;
 
                         ctx.save();
                         ctx.globalAlpha = alpha;
-                        drawSkillChip(ctx, x, y, label, { r, g, b: bcol, time: t });
+                        drawSkillChip(ctx, x, y, label, { r, g, b: bcol, time: t, padY: 22, padX: -20 });
                         ctx.restore();
                     }
                 };

@@ -1,18 +1,17 @@
 export const aboutFacts: string[] = [
     "Amsterdam-based Software Engineer",
     "Frontend + Backend + AI/Blockchain",
-    "Built object detection for parking",
-    "Shipped AWS-first products",
+    "Built Car detection for parking",
     "Love clean UX & performance",
     "Scrum practitioner",
-    "Always learning 🤝"
+    "Always learning"
 ];
 
 export const funFacts: string[] = [
-    "🎸 Guitar noodler",
-    "📷 Likes street photography",
-    "☕ Espresso person",
-    "🏔 Weekend hikes",
+    "Goal keeper at RKSV Pancratius ⚽",
+    "Girlfriend from Austria 🇦🇹",
+    "Espresso person ☕",
+    "Free time game developer 🎮",
 ];
 
 
