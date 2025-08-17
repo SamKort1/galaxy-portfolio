@@ -11,40 +11,38 @@ export type Project = {
 
 export const projects: Project[] = [
     {
-        id: "p-frontend-design-system",
-        title: "Design System Playground",
+        id: "1",
+        title: "Portfolio for Dylan Putman",
         cluster: "frontend",
-        description: "Token-driven components with docs and theming.",
+        description: "Portfolio for Art Director/Creative Director Dylan Putman. Showing of his projects in an elegant simple way",
         tech: ["React", "Next.js", "Tailwind"],
-        demoUrl: "#",
-        repoUrl: "#"
+        demoUrl: "https://dylanputman.nl/",
+        repoUrl: "https://github.com/SamKort1/dylan-putman-website",
+        previewImage: "/portfolio-dylan.png"
     },
     {
-        id: "p-backend-chat-ws",
-        title: "Realtime Chat Service",
-        cluster: "backend",
-        description: "WebSocket gateway + auth + horizontal scaling.",
+        id: "2",
+        title: "Studero - Study helper",
+        cluster: "frontend",
+        description: "Created a notion inspired Study helper called Studero. Where users can add meetings,  \n synced with google calender. Add notes using a folder structure and a rich text editor integrated with AI.  \n  Create quiz's based on notes",
         tech: ["Kotlin", "Spring", "Redis"],
-        demoUrl: "#",
         repoUrl: "#"
     },
     {
-        id: "p-ai-parking-vision",
+        id: "AI Parking detection",
         title: "Parking Object Detection",
         cluster: "ai",
-        description: "YOLOv8-based detector with edge inference.",
-        tech: ["PyTorch", "OpenCV"],
-        demoUrl: "#",
-        repoUrl: "#"
+        description: "YOLOv8-based detector with edge inference. Detecting cars within a street. measuring street length and other objects and determining available parking spaces within a street.",
+        tech: ["PyTorch", "YOLO", "Python", "Video Detection"],
+        previewImage: "/gif.gif"
     },
     {
-        id: "p-cloud-iac",
+        id: "",
         title: "IaC + CI/CD Pipeline",
         cluster: "cloud",
         description: "GitHub Actions → Terraform → AWS (ECS + RDS).",
-        tech: ["AWS", "Terraform", "Docker"],
-        demoUrl: "#",
-        repoUrl: "#"
+        tech: ["AWS", "Docker"],
+        previewImage: '/ci-cd.png'
     }
 ];
 
@@ -52,5 +50,5 @@ export const skills: Record<"frontend" | "backend" | "ai" | "cloud", string[]> =
     frontend: ["React", "Angular", "Vue", "Next.js", "Tailwind"],
     backend:  ["Java", "Kotlin", "Spring Boot", "Python", "PostgreSQL"],
     ai:       ["PyTorch", "YOLO", "TensorFlow", "Solidity", "Smart Contracts"],
-    cloud:    ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
+    cloud:    ["AWS", "Docker", "Kubernetes", "CI/CD"],
 };

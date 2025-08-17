@@ -24,7 +24,7 @@ export function runStep(env: StepEnv, t: number, last: number) {
     backgroundTint(env);
     applyWorldTransform(env);
     physicsSatellites(env, dt);
-    physicsHubs(env, dt);
+    physicsHubs(env);
     physicsRepulsion(env);
     physicsIntegrate(env, dt);
     drawEdges(env, t);

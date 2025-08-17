@@ -134,7 +134,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                     />
                     <div className="min-w-0">
                         <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">{project.title}</h2>
-                        <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2">{project.description}</p>
+                        <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">{project.description}</p>
                         {/* Tech chips */}
                         {project.tech?.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -151,23 +151,23 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                     </div>
 
                     {/* Actions */}
-                    <div className="ml-auto flex items-center gap-2">
-                        {project.demoUrl && (
-                            <a
-                                href={project.demoUrl}
-                                target="_blank"
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100"
-                            >
-                                Live Demo ↗
-                            </a>
-                        )}
+                    <div className="ml-auto flex items-center gap-4 w-fit">
                         {project.repoUrl && (
                             <a
                                 href={project.repoUrl}
                                 target="_blank"
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100"
+                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 inline-flex items-center"
                             >
-                                GitHub ↗
+                                GitHub <span className="ml-1">↗</span>
+                            </a>
+                        )}
+                        {project.demoUrl && (
+                            <a
+                                href={project.demoUrl}
+                                target="_blank"
+                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 inline-flex items-center"
+                            >
+                                Live <span className="ml-1">↗</span>
                             </a>
                         )}
                         <button
@@ -179,7 +179,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white"
+                            className="flex items-center justify-center h-[34px] w-[34px] rounded-lg hover:bg-white/10 text-gray-300 hover:text-white"
                             aria-label="Close details"
                         >
                             ✕
