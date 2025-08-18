@@ -29,6 +29,56 @@ const CALM = {
     unzoomDuration: 600,
 };
 
+// Secret theme configurations
+const SECRET_THEMES = {
+    matrix: {
+        name: "Matrix",
+        colors: {
+            frontend: "#00ff00",
+            backend: "#00cc00", 
+            ai: "#00aa00",
+            cloud: "#008800",
+            about: "#00ff00",
+            contact: "#00cc00"
+        },
+        background: "radial-gradient(1200px 800px at 30% 20%, rgba(0,255,0,0.1), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(0,255,0,0.1), transparent 60%), #001100"
+    },
+    cyberpunk: {
+        name: "Cyberpunk",
+        colors: {
+            frontend: "#ff00ff",
+            backend: "#00ffff",
+            ai: "#ffff00", 
+            cloud: "#ff0080",
+            about: "#00ffff",
+            contact: "#ff00ff"
+        },
+        background: "radial-gradient(1200px 800px at 30% 20%, rgba(255,0,255,0.15), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(0,255,255,0.15), transparent 60%), #1a0033"
+    },
+    retro: {
+        name: "Retro",
+        colors: {
+            frontend: "#ff6b35",
+            backend: "#f7931e",
+            ai: "#ffd23f",
+            cloud: "#5390d9", 
+            about: "#ff6b35",
+            contact: "#f7931e"
+        },
+        background: "radial-gradient(1200px 800px at 30% 20%, rgba(255,107,53,0.12), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(247,147,30,0.12), transparent 60%), #2d1b69"
+    }
+};
+
+// Secret commands
+const SECRET_COMMANDS = [
+    { command: "matrix", description: "Enable Matrix green theme" },
+    { command: "cyberpunk", description: "Enable Cyberpunk neon theme" },
+    { command: "retro", description: "Enable Retro 80s theme" },
+    { command: "help", description: "Show this help message" },
+    { command: "reset", description: "Reset to default theme" },
+    { command: "dev", description: "Toggle developer mode" }
+];
+
 type Node = {
     id: number;
     x: number;
@@ -102,14 +152,34 @@ export default function NeuralCanvas({
     const [expandedCluster, setExpandedCluster] = useState<Cluster["id"] | null>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [secretTheme, setSecretTheme] = useState<string | null>(null);
+    const [showHelp, setShowHelp] = useState(false);
+    const [devMode, setDevMode] = useState(false);
+    const [clickCount, setClickCount] = useState(0);
+    const [lastClickTime, setLastClickTime] = useState(0);
+    const [typedKeys, setTypedKeys] = useState("");
+    const [themeFlash, setThemeFlash] = useState(false);
+    const [fps, setFps] = useState(0);
+    const [satelliteMultiplier, setSatelliteMultiplier] = useState(1);
+    const [edgeMultiplier, setEdgeMultiplier] = useState(1);
     const timeRef = useRef(0);
     const visited = useRef<Set<string>>(new Set()); // clicked projects
+    const devModeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const fpsRef = useRef({ lastTime: 0, frameCount: 0, fps: 0 });
 
     const SHOOTING_COUNT = 25;
     const shootingRef = useRef<{
         x: number; y: number; vx: number; vy: number;
         r: number; hue: number; life: number; maxLife: number;
     }[]>([]);
+    
+    // Particle explosion refs
+    const explosionRef = useRef<{
+        x: number; y: number; particles: Array<{
+            x: number; y: number; vx: number; vy: number;
+            life: number; maxLife: number; color: string;
+        }>;
+    } | null>(null);
 
     const starfieldRef = useRef<BackgroundStar[]>([]);
 
@@ -140,17 +210,100 @@ export default function NeuralCanvas({
         return () => window.removeEventListener("resize", resize);
     }, []);
 
-    // ESC to collapse
+    // Secret features and keyboard handlers
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
                 animateCollapse();
             }
+            
+            // Secret command typing
+            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                setTypedKeys(prev => {
+                    const newKeys = prev + e.key.toLowerCase();
+                    // Keep only last 20 characters
+                    const trimmed = newKeys.slice(-20);
+                    
+                    // Check for secret commands
+                    if (trimmed.includes("help")) {
+                        setShowHelp(true);
+                        setTimeout(() => setShowHelp(false), 5000);
+                        return "";
+                    }
+                    if (trimmed.includes("matrix")) {
+                        setSecretTheme("matrix");
+                        setThemeFlash(true);
+                        setTimeout(() => setThemeFlash(false), 300);
+                        return "";
+                    }
+                    if (trimmed.includes("cyberpunk")) {
+                        setSecretTheme("cyberpunk");
+                        setThemeFlash(true);
+                        setTimeout(() => setThemeFlash(false), 300);
+                        return "";
+                    }
+                    if (trimmed.includes("retro")) {
+                        setSecretTheme("retro");
+                        setThemeFlash(true);
+                        setTimeout(() => setThemeFlash(false), 300);
+                        return "";
+                    }
+                    if (trimmed.includes("reset")) {
+                        setSecretTheme(null);
+                        setThemeFlash(true);
+                        setTimeout(() => setThemeFlash(false), 300);
+                        return "";
+                    }
+                    if (trimmed.includes("dev")) {
+                        // Clear any existing timeout
+                        if (devModeTimeoutRef.current) {
+                            clearTimeout(devModeTimeoutRef.current);
+                        }
+                        setDevMode(true);
+                        devModeTimeoutRef.current = setTimeout(() => {
+                            setDevMode(false);
+                            devModeTimeoutRef.current = null;
+                        }, 600000); // 10 minutes
+                        return "";
+                    }
+                    
+                    return trimmed;
+                });
+            }
         };
+        
         window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [transform, expandedCluster]);
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            // Clean up timeout on unmount
+            if (devModeTimeoutRef.current) {
+                clearTimeout(devModeTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Handle dev mode controls separately
+    useEffect(() => {
+        if (devMode && typedKeys) {
+            const trimmed = typedKeys.slice(-20);
+            if (trimmed.includes("more")) {
+                console.log("More command detected");
+                setSatelliteMultiplier(prev => Math.min(prev + 0.5, 5));
+                setEdgeMultiplier(prev => Math.min(prev + 0.2, 3));
+                setTypedKeys("");
+            } else if (trimmed.includes("less")) {
+                console.log("Less command detected");
+                setSatelliteMultiplier(prev => Math.max(prev - 0.5, 0.5));
+                setEdgeMultiplier(prev => Math.max(prev - 0.2, 0.2));
+                setTypedKeys("");
+            } else if (trimmed.includes("reset")) {
+                console.log("Reset command detected");
+                setSatelliteMultiplier(1);
+                setEdgeMultiplier(1);
+                setTypedKeys("");
+            }
+        }
+    }, [devMode, typedKeys]);
 
     // initial graph
     useEffect(() => {
@@ -176,12 +329,12 @@ export default function NeuralCanvas({
 
         // Calculate responsive sizes based on screen dimensions
         const screenSize = Math.min(w, h);
-        const hubRadius = Math.max(15, Math.min(35, screenSize * 0.03)); // 15-35px based on screen size
-        const satelliteRadiusMin = Math.max(0.8, Math.min(3, screenSize * 0.002)); // 0.8-3px
-        const satelliteRadiusMax = Math.max(4, Math.min(12, screenSize * 0.008)); // 4-12px
-        // Much smaller orbit radii for mobile
-        const orbitRadiusMin = Math.max(20, Math.min(60, screenSize * 0.05)); // 30-80px (was 50-120px)
-        const orbitRadiusMax = Math.max(40, Math.min(90, screenSize * 0.08)); // 50-120px (was 80-180px)
+        const hubRadius = Math.max(20, Math.min(45, screenSize * 0.04)); // 20-45px based on screen size (increased)
+        const satelliteRadiusMin = Math.max(1.5, Math.min(5, screenSize * 0.003)); // 1.5-5px (increased)
+        const satelliteRadiusMax = Math.max(6, Math.min(18, screenSize * 0.012)); // 6-18px (increased)
+        // Larger orbit radii for more screen coverage
+        const orbitRadiusMin = Math.max(40, Math.min(100, screenSize * 0.08)); // 40-100px (increased)
+        const orbitRadiusMax = Math.max(80, Math.min(150, screenSize * 0.12)); // 80-150px (increased)
 
         for (const {id} of clusters) {
             // hub
@@ -196,7 +349,7 @@ export default function NeuralCanvas({
                 isHub: true,
             });
             // satellites
-            const satellites = 12;
+            const satellites = Math.round(12 * satelliteMultiplier);
             for (let i = 0; i < satellites; i++) {
                 const baseR = rand(orbitRadiusMin, orbitRadiusMax);
                 const theta = rand(0, Math.PI * 2);
@@ -222,8 +375,8 @@ export default function NeuralCanvas({
 
         // intra-cluster edges
         const clusterNodes = (cid: string) => nodes.filter((n) => n.clusterId === cid);
-        // Responsive edge distance based on orbit size
-        const edgeDistance = Math.max(80, Math.min(140, screenSize * 0.1)); // 80-140px based on screen size
+        // Responsive edge distance based on orbit size - increased for more connections
+        const edgeDistance = Math.max(120, Math.min(200, screenSize * 0.15)); // 120-200px based on screen size (increased)
         for (const c of clusters) {
             const list = clusterNodes(c.id);
             for (let i = 0; i < list.length; i++) {
@@ -233,7 +386,7 @@ export default function NeuralCanvas({
                     const dx = a.x - b.x,
                         dy = a.y - b.y;
                     const d2 = dx * dx + dy * dy;
-                    if (d2 < edgeDistance * edgeDistance && Math.random() < 0.08) edges.push({a: a.id, b: b.id, clusterId: c.id});
+                    if (d2 < edgeDistance * edgeDistance && Math.random() < 0.08 * edgeMultiplier) edges.push({a: a.id, b: b.id, clusterId: c.id});
                 }
             }
         }
@@ -244,7 +397,7 @@ export default function NeuralCanvas({
             for (let j = i + 1; j < ids.length; j++) {
                 const A = clusterNodes(ids[i]).filter((n) => !n.isHub);
                 const B = clusterNodes(ids[j]).filter((n) => !n.isHub);
-                for (let k = 0; k < 5; k++) {
+                for (let k = 0; k < Math.round(5 * edgeMultiplier); k++) {
                     const a = A[Math.floor(Math.random() * A.length)];
                     const b = B[Math.floor(Math.random() * B.length)];
                     if (a && b) edges.push({a: a.id, b: b.id, clusterId: "cross", cross: true});
@@ -258,7 +411,7 @@ export default function NeuralCanvas({
         setTimeout(() => setIsLoading(false), 1000);
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [size.w, size.h, JSON.stringify(clusters)]);
+    }, [size.w, size.h, JSON.stringify(clusters), satelliteMultiplier, edgeMultiplier]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -276,6 +429,14 @@ export default function NeuralCanvas({
             node.vy += dy * strength;
         };
 
+        // Apply secret theme to clusters if active
+        const themedClusters = secretTheme ? 
+            clusters.map(cluster => ({
+                ...cluster,
+                color: SECRET_THEMES[secretTheme as keyof typeof SECRET_THEMES].colors[cluster.id as keyof typeof SECRET_THEMES.matrix.colors] || cluster.color
+            })) : 
+            clusters;
+        
         // build env once per effect run
         const env: StepEnv = {
             timeRef, prefersReducedMotion,
@@ -284,7 +445,7 @@ export default function NeuralCanvas({
             transform, expandedCluster, hoverId, hoverCluster,
             CALM,
             SHOOTING_COUNT, shootingRef,
-            clusters,
+            clusters: themedClusters,
             skills: (skills as any),
             projects,
             contactLinks,
@@ -299,13 +460,84 @@ export default function NeuralCanvas({
 
         const step = (t: number) => {
             last = runStep(env, t, last);
+            
+            // Calculate FPS
+            fpsRef.current.frameCount++;
+            if (t - fpsRef.current.lastTime >= 1000) { // Update FPS every second
+                fpsRef.current.fps = Math.round((fpsRef.current.frameCount * 1000) / (t - fpsRef.current.lastTime));
+                setFps(fpsRef.current.fps);
+                fpsRef.current.frameCount = 0;
+                fpsRef.current.lastTime = t;
+            }
+            
+            // Update particle explosion
+            if (explosionRef.current) {
+                const dt = (t - last) / 1000;
+                explosionRef.current.particles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.98; // friction
+                    particle.vy *= 0.98;
+                    particle.vy += 0.1; // gravity
+                    particle.life += dt;
+                });
+                
+                // Remove dead particles
+                explosionRef.current.particles = explosionRef.current.particles.filter(
+                    particle => particle.life < particle.maxLife
+                );
+                
+                // Remove explosion if no particles left
+                if (explosionRef.current.particles.length === 0) {
+                    explosionRef.current = null;
+                }
+            }
+            
             raf = requestAnimationFrame(step);
             drawBackgroundStarfield(ctx, starfieldRef.current, timeRef.current);
+            
+            // Draw particle explosion
+            if (explosionRef.current) {
+                ctx.save();
+                explosionRef.current.particles.forEach(particle => {
+                    const alpha = 1 - (particle.life / particle.maxLife);
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = particle.color;
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.restore();
+            }
         };
 
         raf = requestAnimationFrame(step);
         return () => cancelAnimationFrame(raf);
-    }, [size.w, size.h, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, size]);
+    }, [size.w, size.h, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, size, secretTheme]);
+
+    // Apply secret theme background to body and force canvas redraw
+    useEffect(() => {
+        if (secretTheme) {
+            document.body.style.background = SECRET_THEMES[secretTheme as keyof typeof SECRET_THEMES].background;
+        } else {
+            document.body.style.background = "radial-gradient(1200px 800px at 30% 20%, rgba(99,102,241,0.08), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(34,211,238,0.08), transparent 60%), #0b0e14";
+        }
+        
+        // Force canvas redraw by triggering a state update
+        const canvas = canvasRef.current;
+        if (canvas && !isLoading) {
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+                // Clear and redraw immediately
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawBackgroundStarfield(ctx, starfieldRef.current, timeRef.current);
+            }
+        }
+        
+        return () => {
+            document.body.style.background = "radial-gradient(1200px 800px at 30% 20%, rgba(99,102,241,0.08), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(34,211,238,0.08), transparent 60%), #0b0e14";
+        };
+    }, [secretTheme, isLoading]);
 
     // pointer interactions
     useEffect(() => {
@@ -388,6 +620,50 @@ export default function NeuralCanvas({
         const onClick = (e: PointerEvent) => {
             const rect = canvas.getBoundingClientRect();
             const p = invert(e.clientX - rect.left, e.clientY - rect.top);
+            
+            // Track clicks for particle explosion
+            const now = Date.now();
+            if (now - lastClickTime < 10000) { // 10 seconds
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                setLastClickTime(now);
+                
+                // Trigger particle explosion after 10 clicks
+                if (newCount >= 10) {
+                    const explosionX = e.clientX;
+                    const explosionY = e.clientY;
+                    const particles = [];
+                    
+                    // Create 50 particles
+                    for (let i = 0; i < 50; i++) {
+                        const angle = (Math.PI * 2 * i) / 50;
+                        const speed = 2 + Math.random() * 3;
+                        particles.push({
+                            x: explosionX,
+                            y: explosionY,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            life: 0,
+                            maxLife: 2 + Math.random() * 2,
+                            color: `hsl(${Math.random() * 360}, 70%, 60%)`
+                        });
+                    }
+                    
+                    explosionRef.current = {
+                        x: explosionX,
+                        y: explosionY,
+                        particles
+                    };
+                    
+                    // Reset click count
+                    setClickCount(0);
+                    setLastClickTime(0);
+                }
+            } else {
+                // Reset if more than 10 seconds have passed
+                setClickCount(1);
+                setLastClickTime(now);
+            }
 
             // Expanded: handle satellites or collapse
             if (expandedCluster) {
@@ -605,28 +881,28 @@ export default function NeuralCanvas({
                                         <stop offset="100%" stopColor="rgba(34, 211, 238, 0.3)" />
                                     </linearGradient>
                                 </defs>
-                                {[...Array(6)].map((_, i) => {
-                                    const angle = (i * 60) * (Math.PI / 180);
-                                    const x1 = 64, y1 = 64;
-                                    const x2 = 64 + Math.cos(angle) * 40;
-                                    const y2 = 64 + Math.sin(angle) * 40;
-                                    return (
-                                        <line
-                                            key={i}
-                                            x1={x1}
-                                            y1={y1}
-                                            x2={x2}
-                                            y2={y2}
-                                            stroke="url(#lineGradient)"
-                                            strokeWidth="1"
-                                            opacity="0.6"
-                                            style={{
-                                                animation: `pulse 2s ease-in-out infinite`,
-                                                animationDelay: `${i * 0.2}s`
-                                            }}
-                                        />
-                                    );
-                                })}
+                                                                 {[...Array(6)].map((_, i) => {
+                                     const angle = (i * 60) * (Math.PI / 180);
+                                     const x1 = 64, y1 = 64;
+                                     const x2 = Math.round(64 + Math.cos(angle) * 40);
+                                     const y2 = Math.round(64 + Math.sin(angle) * 40);
+                                     return (
+                                         <line
+                                             key={i}
+                                             x1={x1}
+                                             y1={y1}
+                                             x2={x2}
+                                             y2={y2}
+                                             stroke="url(#lineGradient)"
+                                             strokeWidth="1"
+                                             opacity="0.6"
+                                             style={{
+                                                 animation: `pulse 2s ease-in-out infinite`,
+                                                 animationDelay: `${i * 0.2}s`
+                                             }}
+                                         />
+                                     );
+                                 })}
                             </svg>
                         </div>
                         
@@ -669,6 +945,81 @@ export default function NeuralCanvas({
                 </button>
             )}
             
+                         {/* Secret Theme Background Overlay */}
+             {secretTheme && (
+                 <div 
+                     className="fixed inset-0 z-[-1] pointer-events-none"
+                     style={{
+                         background: SECRET_THEMES[secretTheme as keyof typeof SECRET_THEMES].background
+                     }}
+                 />
+             )}
+             
+             {/* Theme Change Flash Effect */}
+             {themeFlash && (
+                 <div 
+                     className="fixed inset-0 z-20 pointer-events-none bg-white/20 animate-pulse"
+                     style={{
+                         animation: 'none',
+                         background: secretTheme ? 
+                             SECRET_THEMES[secretTheme as keyof typeof SECRET_THEMES].colors.frontend + '40' : 
+                             'rgba(255,255,255,0.2)'
+                     }}
+                 />
+             )}
+            
+            {/* Secret Theme Indicator */}
+            {secretTheme && (
+                <div className="fixed top-4 right-4 z-40 px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur text-xs text-white border border-white/20">
+                    🎨 {SECRET_THEMES[secretTheme as keyof typeof SECRET_THEMES].name} Mode
+                </div>
+            )}
+            
+                                      {/* Developer Mode Overlay */}
+              {devMode && (
+                  <div className="fixed top-4 left-4 z-40 p-3 rounded-lg bg-black/70 backdrop-blur text-xs text-green-400 border border-green-400/30 font-mono">
+                      <div>DEV MODE</div>
+                      <div>FPS: {fps}</div>
+                      <div>Nodes: {graph.current.nodes.length}</div>
+                      <div>Edges: {graph.current.edges.length}</div>
+                      <div>Theme: {secretTheme || "default"}</div>
+                      <div>Clicks: {clickCount}/10</div>
+                      <div className="mt-2 pt-2 border-t border-green-400/30">
+                          <div>Satellites: {satelliteMultiplier.toFixed(1)}x</div>
+                          <div>Edges: {edgeMultiplier.toFixed(1)}x</div>
+                          <div className="text-xs text-green-300 mt-1">
+                              Type "more" to increase, "less" to decrease
+                          </div>
+                      </div>
+                  </div>
+              )}
+            
+            {/* Help Overlay */}
+            {showHelp && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-black/90 backdrop-blur border border-white/20 rounded-lg p-6 max-w-md">
+                        <h3 className="text-lg font-semibold text-white mb-4">🎮 Secret Commands</h3>
+                        <div className="space-y-2 text-sm">
+                            {SECRET_COMMANDS.map(cmd => (
+                                <div key={cmd.command} className="flex justify-between">
+                                    <span className="text-purple-400 font-mono">{cmd.command}</span>
+                                    <span className="text-gray-300">{cmd.description}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-4 text-xs text-gray-400">
+                            Type commands anywhere on the page to activate them!
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Click Counter (hidden by default, visible in dev mode) */}
+            {devMode && (
+                <div className="fixed bottom-4 right-4 z-40 px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur text-xs text-white border border-white/20">
+                    Clicks: {clickCount}/10
+                </div>
+            )}
 
         </>
     );
