@@ -68,7 +68,7 @@ export function SecretOverlays({
                         <div>Satellites: {satelliteMultiplier.toFixed(1)}x</div>
                         <div>Edges: {edgeMultiplier.toFixed(1)}x</div>
                         <div className="text-xs text-green-300 mt-1">
-                            Type "more" to increase, "less" to decrease
+                            Type &quot;more&quot; to increase, &quot;less&quot; to decrease
                         </div>
                     </div>
                 </div>

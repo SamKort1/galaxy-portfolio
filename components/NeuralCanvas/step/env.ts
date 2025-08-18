@@ -32,7 +32,13 @@ export type StepEnv = {
     hoverCluster: string | null;
 
     // constants
-    CALM: any;
+    CALM: {
+        zoomScale: number;
+        zoomDuration: number;
+        unzoomDuration: number;
+        orbitOmegaMin: number;
+        orbitOmegaMax: number;
+    };
 
     // shooting stars
     SHOOTING_COUNT: number;

@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Cluster } from "./step/env";
-import type { ContactLink } from "../../app/data/contact";
-import { Project, skills } from "../../app/data/projects";
-
 import { runStep } from "./step/runStep";
 import type { StepEnv } from "./step/env";
 import { generateBackgroundStarfield, drawBackgroundStarfield, BackgroundStar } from "../utils/StarField";
 import { roundRectPath } from "./step/drawHelpers";
+import { skills } from "../../app/data/projects";
 
 // Import our refactored modules
 import { CALM, DPR, prefersReducedMotion, SHOOTING_COUNT } from "./constants";
@@ -32,13 +29,7 @@ export default function NeuralCanvas({
     funFacts,
     contactLinks,
     onOpenContactModal,
-    aboutBio,
-    aboutPhotoUrl,
-    aboutHighlights,
-    aboutTimeline,
-    aboutCVUrl,
 }: NeuralCanvasProps) {
-    const router = useRouter();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const { size, setSize } = useCanvasSetup();
     
@@ -63,20 +54,15 @@ export default function NeuralCanvas({
         setClickCount,
         lastClickTime,
         setLastClickTime,
-        typedKeys,
-        setTypedKeys,
         themeFlash,
         setThemeFlash,
         fps,
         setFps,
         satelliteMultiplier,
-        setSatelliteMultiplier,
         edgeMultiplier,
-        setEdgeMultiplier,
         devModeTimeoutRef,
         fpsRef,
-        SECRET_THEMES,
-        SECRET_COMMANDS
+        SECRET_THEMES
     } = useSecretFeatures();
 
     // Graph setup hook
@@ -140,7 +126,7 @@ export default function NeuralCanvas({
         let last = performance.now();
 
         // Helper function
-        const attract = (node: any, target: { x: number; y: number }, strength: number) => {
+        const attract = (node: { x: number; y: number; vx: number; vy: number }, target: { x: number; y: number }, strength: number) => {
             const dx = target.x - node.x;
             const dy = target.y - node.y;
             node.vx += dx * strength;
@@ -164,7 +150,7 @@ export default function NeuralCanvas({
             CALM,
             SHOOTING_COUNT, shootingRef,
             clusters: themedClusters,
-            skills: (skills as any),
+            skills,
             projects,
             contactLinks,
             visited,
@@ -229,7 +215,7 @@ export default function NeuralCanvas({
 
         raf = requestAnimationFrame(step);
         return () => cancelAnimationFrame(raf);
-    }, [size.w, size.h, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme]);
+    }, [size.w, size.h, size, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme, SECRET_THEMES, anchors, graph, setFps, fpsRef]);
 
     // Apply secret theme background
     useEffect(() => {
@@ -251,7 +237,38 @@ export default function NeuralCanvas({
         return () => {
             document.body.style.background = "radial-gradient(1200px 800px at 30% 20%, rgba(99,102,241,0.08), transparent 60%), radial-gradient(1000px 700px at 80% 70%, rgba(34,211,238,0.08), transparent 60%), #0b0e14";
         };
-    }, [secretTheme, isLoading]);
+    }, [secretTheme, isLoading, SECRET_THEMES]);
+
+    // Helper: animated collapse
+    const animateCollapse = useCallback(() => {
+        if (!expandedCluster) return;
+        const start = performance.now();
+        const startTransform = { ...transform };
+        const target = { sx: 1, sy: 1, tx: 0, ty: 0 };
+        const duration = prefersReducedMotion ? 200 : CALM.unzoomDuration;
+
+        setZooming(true);
+        const tick = (now: number) => {
+            const tt = Math.min(1, (now - start) / duration);
+            const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+            const ease = easeInOut(tt);
+
+            const sx = startTransform.sx + (target.sx - startTransform.sx) * ease;
+            const sy = startTransform.sy + (target.sy - startTransform.sy) * ease;
+            const tx = startTransform.tx + (target.tx - startTransform.tx) * ease;
+            const ty = startTransform.ty + (target.ty - startTransform.ty) * ease;
+
+            setTransform({ sx, sy, tx, ty });
+
+            if (tt < 1) requestAnimationFrame(tick);
+            else {
+                setZooming(false);
+                setExpandedCluster(null);
+                onProjectSelect(null);
+            }
+        };
+        requestAnimationFrame(tick);
+    }, [expandedCluster, transform, onProjectSelect]);
 
     // Pointer interactions
     useEffect(() => {
@@ -343,7 +360,7 @@ export default function NeuralCanvas({
                 if (newCount >= 10) {
                     const explosionX = e.clientX;
                     const explosionY = e.clientY;
-                    const particles = [];
+                    const particles = [] as Array<{x:number;y:number;vx:number;vy:number;life:number;maxLife:number;color:string}>;
                     
                     for (let i = 0; i < 50; i++) {
                         const angle = (Math.PI * 2 * i) / 50;
@@ -387,7 +404,7 @@ export default function NeuralCanvas({
                             if (s.id === "contact:message") onOpenContactModal();
                             else {
                                 const key = s.id.split(":")[1];
-                                const link = contactLinks.find(l => l.id === (key as any));
+                                const link = contactLinks.find(l => l.id === key as "email" | "github" | "linkedin" | "message");
                                 if (link) window.open(link.href, "_blank");
                             }
                         } else if (s.id.startsWith("about:")) {
@@ -395,7 +412,7 @@ export default function NeuralCanvas({
                             onAboutSelect(section);
                             visited.current.add(s.id);
                         } else {
-                            onProjectSelect({ id: s.id, x: sx, y: sy, color: c } as any);
+                            onProjectSelect({ id: s.id, x: sx, y: sy, color: c });
                             visited.current.add(s.id);
                         }
                         visited.current.add(s.id);
@@ -405,7 +422,7 @@ export default function NeuralCanvas({
 
                 if (hoverId !== null) {
                     const n = nodes[hoverId];
-                    if (n.isHub && (n.clusterId as any) === expandedCluster) return;
+                    if (n.isHub && n.clusterId === expandedCluster) return;
                 }
 
                 animateCollapse();
@@ -484,43 +501,12 @@ export default function NeuralCanvas({
             canvas.removeEventListener("touchstart", onTouchStart);
             canvas.removeEventListener("touchend", onTouchEnd);
         };
-    }, [hoverId, transform, zooming, expandedCluster, onProjectSelect, contactLinks, isLoading, size, clusters, projects, aboutFacts, funFacts, clickCount, lastClickTime]);
-
-    // Helper: animated collapse
-    const animateCollapse = () => {
-        if (!expandedCluster) return;
-        const start = performance.now();
-        const startTransform = { ...transform };
-        const target = { sx: 1, sy: 1, tx: 0, ty: 0 };
-        const duration = prefersReducedMotion ? 200 : CALM.unzoomDuration;
-
-        setZooming(true);
-        const tick = (now: number) => {
-            const tt = Math.min(1, (now - start) / duration);
-            const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
-            const ease = easeInOut(tt);
-
-            const sx = startTransform.sx + (target.sx - startTransform.sx) * ease;
-            const sy = startTransform.sy + (target.sy - startTransform.sy) * ease;
-            const tx = startTransform.tx + (target.tx - startTransform.tx) * ease;
-            const ty = startTransform.ty + (target.ty - startTransform.ty) * ease;
-
-            setTransform({ sx, sy, tx, ty });
-
-            if (tt < 1) requestAnimationFrame(tick);
-            else {
-                setZooming(false);
-                setExpandedCluster(null);
-                onProjectSelect(null as any);
-            }
-        };
-        requestAnimationFrame(tick);
-    };
+    }, [hoverId, transform, zooming, expandedCluster, onProjectSelect, contactLinks, isLoading, size, clusters, projects, aboutFacts, funFacts, clickCount, lastClickTime, anchors, animateCollapse, graph, onAboutSelect, onOpenContactModal, setClickCount, setLastClickTime]);
 
     return (
         <>
             <canvas
-                ref={canvasRef}
+                ref={canvasRef} 
                 className="fixed left-0 right-0 z-0"
                 style={{
                     top: "var(--safe-top, 88px)",

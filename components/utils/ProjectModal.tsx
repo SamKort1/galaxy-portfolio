@@ -1,6 +1,6 @@
 "use client";
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import type { Project } from "../app/data/projects";
+import type { Project } from "../../app/data/projects";
 
 type Props = {
     project: Project & {
@@ -29,11 +29,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
 
     const media = useMemo(() => {
         const list: Array<{ type: "image" | "video"; src: string }> = [];
-        const g = (project as any).gallery as string[] | undefined;
-        if (g?.length) g.forEach(src => list.push({ type: "image", src }));
-        else if (project.previewImage) list.push({ type: "image", src: project.previewImage });
-        const v = (project as any).videoUrl as string | undefined;
-        if (v) list.unshift({ type: "video", src: v });
+        if (project.previewImage) list.push({ type: "image", src: project.previewImage });
         return list;
     }, [project]);
 
@@ -139,7 +135,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                             {/* Tech chips */}
                             {project.tech?.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1.5">
-                                    {project.tech.map(t => (
+                                    {project.tech.map((t: string) => (
                                         <span
                                             key={t}
                                             className="text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-gray-200"
@@ -209,6 +205,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                     aria-hidden={idx !== active}
                                 >
                                     {m.type === "image" ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                             src={m.src}
                                             alt={project.title}
@@ -276,6 +273,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                         title={`Slide ${i + 1}`}
                                     >
                                         {m.type === "image" ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img src={m.src} alt="" className="h-full w-full object-cover" />
                                         ) : (
                                             <div className="h-full w-full grid place-items-center text-xs text-white/80 bg-black/40">Video</div>
@@ -293,26 +291,13 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
 
                     {/* Details column */}
                     <div className="mt-5 md:mt-0 flex flex-col">
-                        {/* Feature list (optional) */}
-                        {((project as any).features as string[] | undefined)?.length ? (
-                            <section>
-                                <h3 className="text-sm font-semibold text-white/90 mb-2">Key features</h3>
-                                <ul className="space-y-1.5">
-                                    {(project as any).features!.map((f: string, i: number) => (
-                                        <li key={i} className="text-sm text-gray-200/90 flex">
-                                            <span className="mr-2" aria-hidden>•</span>{f}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
-                        ) : (
-                            <section>
-                                <h3 className="text-sm font-semibold text-white/90 mb-2">About this project</h3>
-                                <p className="text-sm text-gray-300/90">
-                                    {project.description}
-                                </p>
-                            </section>
-                        )}
+                                                {/* Feature list (optional) */}
+                        <section>
+                            <h3 className="text-sm font-semibold text-white/90 mb-2">About this project</h3>
+                            <p className="text-sm text-gray-300/90">
+                                {project.description}
+                            </p>
+                        </section>
 
                         {/* Links */}
                         <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-2">

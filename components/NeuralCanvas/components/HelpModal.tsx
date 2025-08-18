@@ -71,7 +71,7 @@ export function HelpModal({
                         <p><strong>Hover over elements</strong> to see tooltips and preview content.</p>
                         <p><strong>Click on orbiting elements</strong> to open detailed modals with full information.</p>
                         <p><strong>Use the Back button</strong> or click outside to collapse expanded clusters.</p>
-                        <p><strong>Try the secret themes</strong> by typing "matrix", "cyberpunk", or "retro" for different visual styles.</p>
+                        <p><strong>Try the secret themes</strong> by typing &quot;matrix&quot;, &quot;cyberpunk&quot;, or &quot;retro&quot; for different visual styles.</p>
                     </div>
                 </div>
                 
@@ -80,7 +80,7 @@ export function HelpModal({
                     <div className="border-t border-white/20 pt-4 mb-4">
                         <h4 className="text-sm font-semibold text-white mb-2">📱 Mobile Users</h4>
                         <div className="text-xs text-gray-300 space-y-2">
-                            <p><strong>Tap "Discover secrets"</strong> in the footer to open this help modal.</p>
+                            <p><strong>Tap &quot;Discover secrets&quot;</strong> in the footer to open this help modal.</p>
                             <p><strong>Use the command input below</strong> to type secret commands on mobile.</p>
                             <p><strong>Long press</strong> on elements to see tooltips (where supported).</p>
                         </div>

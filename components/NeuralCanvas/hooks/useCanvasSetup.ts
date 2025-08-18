@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { DPR } from '../constants';
-import { generateBackgroundStarfield } from '../../utils/StarField';
 
 export function useCanvasSetup() {
     const [size, setSize] = useState({ w: 1200, h: 800 });

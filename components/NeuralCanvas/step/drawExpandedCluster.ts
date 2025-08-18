@@ -6,7 +6,6 @@ export function drawExpandedCluster(env: StepEnv) {
         graph, expandedCluster, clusters, timeRef, prefersReducedMotion,
         skills, projects, contactLinks, ctx, visited, projectHit,
         roundedRectPath,
-        aboutFacts, funFacts,
     } = env;
 
     // -------- Satellites for expanded cluster --------
@@ -37,7 +36,7 @@ export function drawExpandedCluster(env: StepEnv) {
 
         // --- Projects / Skills ---
         if (expandedCluster !== "about" && expandedCluster !== "contact") {
-            const skillList = (skills as any)[expandedCluster] as string[] | undefined;
+            const skillList = skills[expandedCluster as keyof typeof skills];
                          if (skillList && skillList.length) {
                  // Responsive skill orbit radius based on screen size
                  const screenSize = Math.min(env.size.w, env.size.h);

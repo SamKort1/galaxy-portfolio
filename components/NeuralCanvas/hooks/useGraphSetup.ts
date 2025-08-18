@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { rand } from '../utils';
 import { CALM } from '../constants';
-import { Node, Edge } from '../types';
+import { Node, Edge, Cluster } from '../types';
 
 export function useGraphSetup(
     size: { w: number; h: number },
-    clusters: any[],
+    clusters: Cluster[],
     satelliteMultiplier: number,
     edgeMultiplier: number
 ) {
@@ -112,7 +112,7 @@ export function useGraphSetup(
         }
 
         graph.current = { nodes, edges };
-    }, [size.w, size.h, JSON.stringify(clusters), satelliteMultiplier, edgeMultiplier]);
+    }, [size.w, size.h, clusters, satelliteMultiplier, edgeMultiplier]);
 
     return { graph, anchors };
 }

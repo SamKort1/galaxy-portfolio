@@ -98,10 +98,12 @@ export default function AboutProfileModal({
                     {/* Body */}
                     <div className="p-4 sm:p-5 overflow-y-auto max-h-[calc(90vh-120px)]">
                         <div className="flex gap-4 items-start mb-6">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={photo}
                                 alt="Portrait"
                                 className="w-20 h-20 rounded-xl object-cover shrink-0"
+                                loading="lazy"
                             />
                             <div className="min-w-0">
                                 <p className="text-sm text-gray-200/90 leading-relaxed">{bio}</p>

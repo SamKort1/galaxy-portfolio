@@ -22,7 +22,7 @@ export function drawNodes(env: StepEnv) {
                 n.y,
                 n.r,
                 clusterHex,
-                hoverCluster === (n.clusterId as any),
+                hoverCluster === n.clusterId,
                 timeRef.current
             );
 

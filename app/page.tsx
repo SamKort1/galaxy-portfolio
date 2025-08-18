@@ -20,7 +20,7 @@ export default function HomePage() {
         { id: "cloud", name: "Cloud & Agile", color: "#60a5fa", route: "#" },
         { id: "about", name: "About Me", color: "#a78bfa", route: "#" },
         { id: "contact", name: "Contact", color: "#c55656", route: "#" },
-    ] as const;
+    ];
 
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const [aboutProfileOpen, setAboutProfileOpen] = useState(false);
@@ -93,9 +93,9 @@ export default function HomePage() {
     return (
         <main className="relative min-h-screen">
             <NeuralCanvas
-                clusters={clusters as any}
+                clusters={clusters}
                 projects={projects}
-                onProjectSelect={handleProjectSelect as any}
+                onProjectSelect={handleProjectSelect}
                 onAboutSelect={handleAboutSelect}
                 aboutFacts={aboutFacts}
                 funFacts={funFacts}
