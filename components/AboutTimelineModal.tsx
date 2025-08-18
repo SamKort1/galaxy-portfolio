@@ -65,7 +65,7 @@ export default function AboutTimelineModal({
                         />
                         <div className="min-w-0">
                             <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">Timeline</h2>
-                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">My journey</p>
+                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2">My journey</p>
                         </div>
                         <div className="ml-auto flex gap-2">
                             <button
@@ -92,19 +92,27 @@ export default function AboutTimelineModal({
                     </div>
 
                     {/* Body */}
-                    <div className="p-4 sm:p-5 overflow-y-auto h-full">
-                        <div className="space-y-4">
+                    <div className="p-4 sm:p-5 overflow-y-auto h-full custom-scrollbar">
+                        <div className="space-y-6">
                             {timeline.map((t) => (
                                 <div key={`${t.year}-${t.title}`} className="flex gap-4">
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-sm text-gray-400 font-mono bg-white/5 px-2 py-1 rounded">
-                                            {t.year}
-                                        </span>
-                                        <div className="w-3 h-3 rounded-full bg-purple-400/60 mt-2" />
+                                    {/* Timeline dot and line */}
+                                    <div className="flex flex-col items-center relative">
+                                        <div className="w-4 h-4 rounded-full bg-purple-400/60 z-10 relative mt-1.5" />
+                                        {/* Vertical line connecting dots */}
+                                        <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-px h-full bg-white/10" />
                                     </div>
-                                    <div className="flex-1 pb-4 border-l border-white/10 pl-4">
+                                    
+                                    {/* Content area */}
+                                    <div className="flex-1 pb-5">
+                                        {/* Date range */}
+                                        <div className="text-sm text-gray-400 font-mono bg-white/5 px-3 py-1.5 rounded-lg inline-block mb-2">
+                                            {t.year}
+                                        </div>
+                                        
+                                        {/* Title and description */}
                                         <div className="text-sm font-medium text-white mb-1">{t.title}</div>
-                                        <div className="text-xs text-gray-400">{t.text}</div>
+                                        <div className="text-xs text-gray-400 leading-relaxed">{t.text}</div>
                                     </div>
                                 </div>
                             ))}

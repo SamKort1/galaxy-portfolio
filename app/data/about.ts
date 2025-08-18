@@ -29,9 +29,9 @@ export const aboutHighlights: { label: string; value: string }[] = [
 ];
 
 export const aboutTimeline: { year: string; title: string; text: string }[] = [
-    { year: "2025+", title: "Junior Developer -  WoodWing",      text: "Creating a DAM system and integrations" },
-    { year: "2025", title: "Small Portfolio Project for Dylan Putman",      text: "Created portfolio project for Creative Art director, Dylan Putman to show of all his work" },
-    { year: "2025", title: "Graduated Amsterdam University of Applied Science",      text: "Graduated with a 7.4 GPA for my end internship" },
-    { year: "2022", title: "Minor Applied AI - University of Applied Science",   text: "Created an AI to detect available parking spaces in a street" },
-    { year: "2021", title: "Minor Blockchain - University of Applied Science",text: "Built a application to secure contracts written in solidity using AI and blockchain" },
+    { year: "2025 - Present", title: "Junior Developer -  WoodWing",      text: "Creating a DAM system and integrations" },
+    { year: "2025 - 2025", title: "Small Portfolio Project for Dylan Putman",      text: "Created portfolio project for Creative Art director, Dylan Putman to show of all his work" },
+    { year: "2021 -2025", title: "Graduated Amsterdam University of Applied Science",      text: "Graduated with a 7.4 GPA for my end internship" },
+    { year: "2023 - 2024", title: "Minor Applied AI - University of Applied Science",   text: "Created an AI to detect available parking spaces in a street" },
+    { year: "2022 - 2023", title: "Minor Blockchain - University of Applied Science",text: "Built a application to secure contracts written in solidity using AI and blockchain" },
 ];

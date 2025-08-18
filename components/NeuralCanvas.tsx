@@ -578,10 +578,14 @@ export default function NeuralCanvas({
             let onSatellite = false;
             let tip: { x: number; y: number; text: string } | null = null;
 
-            if (expandedCluster && result) {
+            // Check for expanded cluster elements (projects, skills, about sections, etc.)
+            if (expandedCluster) {
+                const rect = canvas.getBoundingClientRect();
+                const p = invert(e.clientX - rect.left, e.clientY - rect.top);
+                
                 for (const s of projectHit.current) {
-                    const dx = result.point.x - s.x,
-                        dy = result.point.y - s.y;
+                    const dx = p.x - s.x,
+                        dy = p.y - s.y;
                     if (dx * dx + dy * dy < s.r * s.r) {
                         onSatellite = true;
                         if (s.id.startsWith("contact:")) {
@@ -606,8 +610,8 @@ export default function NeuralCanvas({
                     }
                 }
             }
-            setTooltip(tip);
-            canvas.style.cursor = onSatellite || (result && result.node.isHub) ? "pointer" : "default";
+             setTooltip(tip);
+             canvas.style.cursor = onSatellite || (result && result.node.isHub) ? "pointer" : "default";
         };
 
         const onLeave = () => {
@@ -997,9 +1001,9 @@ export default function NeuralCanvas({
             {/* Help Overlay */}
             {showHelp && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-black/90 backdrop-blur border border-white/20 rounded-lg p-6 max-w-md">
+                    <div className="bg-black/90 backdrop-blur border border-white/20 rounded-lg p-6 max-w-lg">
                         <h3 className="text-lg font-semibold text-white mb-4">🎮 Secret Commands</h3>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-2 text-sm mb-6">
                             {SECRET_COMMANDS.map(cmd => (
                                 <div key={cmd.command} className="flex justify-between">
                                     <span className="text-purple-400 font-mono">{cmd.command}</span>
@@ -1007,20 +1011,24 @@ export default function NeuralCanvas({
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-4 text-xs text-gray-400">
+                        
+                        <div className="border-t border-white/20 pt-4 mb-4">
+                            <h4 className="text-sm font-semibold text-white mb-2">🌐 How to Use This Site</h4>
+                            <div className="text-xs text-gray-300 space-y-2">
+                                <p><strong>Click on any hub</strong> to expand and see related projects, skills, or information.</p>
+                                <p><strong>Hover over elements</strong> to see tooltips and preview content.</p>
+                                <p><strong>Click on orbiting elements</strong> to open detailed modals with full information.</p>
+                                <p><strong>Use the Back button</strong> or click outside to collapse expanded clusters.</p>
+                                <p><strong>Try the secret themes</strong> by typing "matrix", "cyberpunk", or "retro" for different visual styles.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="text-xs text-gray-400">
                             Type commands anywhere on the page to activate them!
                         </div>
                     </div>
                 </div>
             )}
-            
-            {/* Click Counter (hidden by default, visible in dev mode) */}
-            {devMode && (
-                <div className="fixed bottom-4 right-4 z-40 px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur text-xs text-white border border-white/20">
-                    Clicks: {clickCount}/10
-                </div>
-            )}
-
         </>
     );
 }

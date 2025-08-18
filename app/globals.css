@@ -115,3 +115,46 @@ a { @apply underline underline-offset-4 decoration-dotted; }
   }
 }
 
+/* Custom Scrollbar Styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167, 139, 250, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    rgba(167, 139, 250, 0.4) 0%, 
+    rgba(167, 139, 250, 0.2) 100%);
+  border-radius: 4px;
+  border: 1px solid rgba(167, 139, 250, 0.1);
+  backdrop-filter: blur(4px);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(167, 139, 250, 0.6) 0%, 
+    rgba(167, 139, 250, 0.4) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, 
+    rgba(167, 139, 250, 0.8) 0%, 
+    rgba(167, 139, 250, 0.6) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+/* Hide scrollbar when not needed */
+.custom-scrollbar::-webkit-scrollbar-thumb:vertical {
+  min-height: 40px;
+}
+
