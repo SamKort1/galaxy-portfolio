@@ -33,11 +33,21 @@ export type StepEnv = {
 
     // constants
     CALM: {
+        hubAttract: number;
+        hubJiggle: number;
+        damping: number;
+        orbitOmegaMin: number;
+        orbitOmegaMax: number;
+        orbitWobbleAmp: number;
+        orbitWobbleFreq: number;
+        anchorWobbleAmp: number;
+        anchorWobbleFreq: number;
+        edgeBaseAlpha: number;
+        edgePulseAmp: number;
+        edgePulseFreq: number;
         zoomScale: number;
         zoomDuration: number;
         unzoomDuration: number;
-        orbitOmegaMin: number;
-        orbitOmegaMax: number;
     };
 
     // shooting stars
