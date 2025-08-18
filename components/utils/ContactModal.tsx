@@ -1,6 +1,6 @@
 "use client";
 import { useFormState, useFormStatus } from "react-dom";
-import { sendMessageAction, type MsgState } from "../app/actions";
+import { sendMessageAction, type MsgState } from "../../app/actions";
 
 function SubmitBtn() {
     const { pending } = useFormStatus();

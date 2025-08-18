@@ -1,12 +1,12 @@
 "use client";
 
 import NeuralCanvas from "../components/NeuralCanvas";
-import ProjectModal from "../components/ProjectModal";
-import AboutProfileModal from "../components/AboutProfileModal";
-import AboutTimelineModal from "../components/AboutTimelineModal";
-import AboutSkillsModal from "../components/AboutSkillsModal";
-import ContactModal from "../components/ContactModal";
-import CometOverlay from "../components/CometOverlay";
+import ProjectModal from "../components/utils/ProjectModal";
+import AboutProfileModal from "../components/about/AboutProfileModal";
+import AboutTimelineModal from "../components/about/AboutTimelineModal";
+import AboutSkillsModal from "../components/about/AboutSkillsModal";
+import ContactModal from "../components/utils/ContactModal";
+import CometOverlay from "../components/utils/CometOverlay";
 import { projects } from "./data/projects";
 import {aboutBio, aboutCVUrl, aboutFacts, aboutHighlights, aboutPhotoUrl, aboutTimeline, funFacts} from "./data/about";
 import { contactLinks } from "./data/contact";

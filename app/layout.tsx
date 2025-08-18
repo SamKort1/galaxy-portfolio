@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Footer from "../components/Footer";
+import Footer from "../components/utils/Footer";
 import React from "react";
-import SafeInsetsProvider from "../components/SafeInsetsProvider";
+import SafeInsetsProvider from "../components/utils/SafeInsetsProvider";
 
 export const metadata: Metadata = {
   title: "Sam Kort — Interactive Portfolio",
