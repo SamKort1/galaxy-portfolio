@@ -1,3 +1,5 @@
+"use client";
+
 export default function Footer() {
     return (
         <footer className="fixed bottom-0 inset-x-0 z-20">
@@ -39,10 +41,17 @@ export default function Footer() {
                         
                         <div className="w-px h-4 bg-gray-600"></div>
                         
-                        <div 
-                            className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-colors duration-300 cursor-help group"
-                            title="Type 'help' anywhere to discover secret features and easter eggs!"
-                        >
+                                                 <div 
+                             className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-colors duration-300 cursor-help group"
+                             title="Type 'help' anywhere to discover secret features and easter eggs!"
+                             onClick={() => {
+                                 console.log('Footer "Discover secrets" clicked');
+                                 // Try both approaches - custom event and direct dispatch
+                                 window.dispatchEvent(new CustomEvent('showHelpModal'));
+                                 // Also try dispatching a keyboard event as fallback
+                                 window.dispatchEvent(new KeyboardEvent('keydown', { key: 'h' }));
+                             }}
+                         >
                             <span className="group-hover:animate-pulse">🔍</span>
                             <span className="text-xs opacity-75 group-hover:opacity-100 transition-opacity duration-200">
                                 Discover secrets

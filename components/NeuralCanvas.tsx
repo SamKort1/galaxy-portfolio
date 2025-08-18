@@ -272,9 +272,19 @@ export default function NeuralCanvas({
             }
         };
         
+        // Listen for custom event from footer (mobile help access)
+        const onShowHelpModal = () => {
+            console.log('NeuralCanvas received showHelpModal event');
+            setShowHelp(true);
+            setTimeout(() => setShowHelp(false), 5000);
+        };
+        
         window.addEventListener("keydown", onKey);
+        window.addEventListener("showHelpModal", onShowHelpModal);
+        
         return () => {
             window.removeEventListener("keydown", onKey);
+            window.removeEventListener("showHelpModal", onShowHelpModal);
             // Clean up timeout on unmount
             if (devModeTimeoutRef.current) {
                 clearTimeout(devModeTimeoutRef.current);
@@ -1001,7 +1011,7 @@ export default function NeuralCanvas({
             {/* Help Overlay */}
             {showHelp && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-black/90 backdrop-blur border border-white/20 rounded-lg p-6 max-w-lg">
+                    <div className="bg-black/90 backdrop-blur border border-white/20 rounded-lg p-6 max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <h3 className="text-lg font-semibold text-white mb-4">🎮 Secret Commands</h3>
                         <div className="space-y-2 text-sm mb-6">
                             {SECRET_COMMANDS.map(cmd => (
@@ -1023,10 +1033,88 @@ export default function NeuralCanvas({
                             </div>
                         </div>
                         
-                        <div className="text-xs text-gray-400">
+                        <div className="border-t border-white/20 pt-4 mb-4">
+                            <h4 className="text-sm font-semibold text-white mb-2">📱 Mobile Users</h4>
+                            <div className="text-xs text-gray-300 space-y-2">
+                                <p><strong>Tap "Discover secrets"</strong> in the footer to open this help modal.</p>
+                                <p><strong>Use the command input below</strong> to type secret commands on mobile.</p>
+                                <p><strong>Long press</strong> on elements to see tooltips (where supported).</p>
+                            </div>
+                        </div>
+                        
+                        {/* Mobile Command Input */}
+                        <div className="border-t border-white/20 pt-4">
+                            <h4 className="text-sm font-semibold text-white mb-2">⌨️ Command Input</h4>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Type a command (e.g., 'help', 'matrix')"
+                                    className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-purple-400/50"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const command = e.currentTarget.value.toLowerCase();
+                                            if (command.includes('help')) {
+                                                setShowHelp(true);
+                                                setTimeout(() => setShowHelp(false), 5000);
+                                            } else if (command.includes('matrix')) {
+                                                setSecretTheme("matrix");
+                                                setThemeFlash(true);
+                                                setTimeout(() => setThemeFlash(false), 300);
+                                            } else if (command.includes('cyberpunk')) {
+                                                setSecretTheme("cyberpunk");
+                                                setThemeFlash(true);
+                                                setTimeout(() => setThemeFlash(false), 300);
+                                            } else if (command.includes('retro')) {
+                                                setSecretTheme("retro");
+                                                setThemeFlash(true);
+                                                setTimeout(() => setThemeFlash(false), 300);
+                                            } else if (command.includes('reset')) {
+                                                setSecretTheme(null);
+                                                setThemeFlash(true);
+                                                setTimeout(() => setThemeFlash(false), 300);
+                                            } else if (command.includes('dev')) {
+                                                if (devModeTimeoutRef.current) {
+                                                    clearTimeout(devModeTimeoutRef.current);
+                                                }
+                                                setDevMode(true);
+                                                devModeTimeoutRef.current = setTimeout(() => {
+                                                    setDevMode(false);
+                                                    devModeTimeoutRef.current = null;
+                                                }, 600000);
+                                            }
+                                            e.currentTarget.value = '';
+                                        }
+                                    }}
+                                />
+                                <button
+                                    onClick={() => setShowHelp(false)}
+                                    className="px-3 py-2 bg-purple-400/20 hover:bg-purple-400/30 text-purple-100 rounded-lg text-sm transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="text-xs text-gray-400 mt-4">
                             Type commands anywhere on the page to activate them!
                         </div>
                     </div>
+                </div>
+            )}
+            
+            {/* Mobile Secret Access Button */}
+            {typeof window !== 'undefined' && window.innerWidth <= 768 && (
+                <div className="fixed bottom-20 right-4 z-40">
+                    <button
+                        onClick={() => {
+                            setShowHelp(true);
+                            setTimeout(() => setShowHelp(false), 5000);
+                        }}
+                        className="w-12 h-12 rounded-full bg-purple-400/20 hover:bg-purple-400/30 border border-purple-400/30 backdrop-blur-sm flex items-center justify-center text-purple-100 transition-all duration-200 hover:scale-110 shadow-lg"
+                        title="Access secret features"
+                    >
+                        <span className="text-lg">🔍</span>
+                    </button>
                 </div>
             )}
         </>
