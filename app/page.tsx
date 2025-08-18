@@ -2,6 +2,9 @@
 
 import NeuralCanvas from "../components/NeuralCanvas";
 import ProjectModal from "../components/ProjectModal";
+import AboutProfileModal from "../components/AboutProfileModal";
+import AboutTimelineModal from "../components/AboutTimelineModal";
+import AboutSkillsModal from "../components/AboutSkillsModal";
 import ContactModal from "../components/ContactModal";
 import CometOverlay from "../components/CometOverlay";
 import { projects } from "./data/projects";
@@ -20,6 +23,9 @@ export default function HomePage() {
     ] as const;
 
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+    const [aboutProfileOpen, setAboutProfileOpen] = useState(false);
+    const [aboutTimelineOpen, setAboutTimelineOpen] = useState(false);
+    const [aboutSkillsOpen, setAboutSkillsOpen] = useState(false);
     const [contactOpen, setContactOpen] = useState(false);
 
     const [comet, setComet] = useState<null | { x: number; y: number; color?: string; projectId: string }>(null);
@@ -30,7 +36,14 @@ export default function HomePage() {
     );
 
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => e.key === "Escape" && setActiveProjectId(null);
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setActiveProjectId(null);
+                setAboutProfileOpen(false);
+                setAboutTimelineOpen(false);
+                setAboutSkillsOpen(false);
+            }
+        };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
     }, []);
@@ -59,6 +72,23 @@ export default function HomePage() {
         setComet({ x, y, color, projectId: id });
     };
 
+    const handleAboutSelect = (section: string) => {
+        switch (section) {
+            case "profile":
+                setAboutProfileOpen(true);
+                break;
+            case "timeline":
+                setAboutTimelineOpen(true);
+                break;
+            case "skills":
+                setAboutSkillsOpen(true);
+                break;
+            case "contact":
+                setContactOpen(true);
+                break;
+        }
+    };
+
 
     return (
         <main className="relative min-h-screen">
@@ -66,6 +96,7 @@ export default function HomePage() {
                 clusters={clusters as any}
                 projects={projects}
                 onProjectSelect={handleProjectSelect as any}
+                onAboutSelect={handleAboutSelect}
                 aboutFacts={aboutFacts}
                 funFacts={funFacts}
                 contactLinks={contactLinks}
@@ -92,6 +123,40 @@ export default function HomePage() {
             {activeProject && (
                 <ProjectModal project={activeProject} onClose={() => setActiveProjectId(null)} />
             )}
+
+            <AboutProfileModal
+                isOpen={aboutProfileOpen}
+                onClose={() => setAboutProfileOpen(false)}
+                photo={aboutPhotoUrl}
+                bio={aboutBio}
+                highlights={aboutHighlights}
+                onDownloadCV={() => aboutCVUrl && window.open(aboutCVUrl, "_blank")}
+                onContact={() => {
+                    setAboutProfileOpen(false);
+                    setContactOpen(true);
+                }}
+            />
+
+            <AboutTimelineModal
+                isOpen={aboutTimelineOpen}
+                onClose={() => setAboutTimelineOpen(false)}
+                timeline={aboutTimeline}
+                onDownloadCV={() => aboutCVUrl && window.open(aboutCVUrl, "_blank")}
+                onContact={() => {
+                    setAboutTimelineOpen(false);
+                    setContactOpen(true);
+                }}
+            />
+
+            <AboutSkillsModal
+                isOpen={aboutSkillsOpen}
+                onClose={() => setAboutSkillsOpen(false)}
+                onDownloadCV={() => aboutCVUrl && window.open(aboutCVUrl, "_blank")}
+                onContact={() => {
+                    setAboutSkillsOpen(false);
+                    setContactOpen(true);
+                }}
+            />
 
             {contactOpen && <ContactModal onClose={() => setContactOpen(false)} />}
         </main>

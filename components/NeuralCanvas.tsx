@@ -5,7 +5,7 @@ import {Cluster} from "./canvas/step/env";
 import {useRouter} from "next/navigation";
 import type {ContactLink} from "../app/data/contact";
 import {Project, skills} from "../app/data/projects";
-import AboutPanel from "./AboutPanel";
+
 import {runStep} from "./canvas/step/runStep";
 import type {StepEnv} from "./canvas/step/env";
 import { generateBackgroundStarfield, drawBackgroundStarfield, BackgroundStar } from "./StarField";
@@ -64,22 +64,24 @@ function rand(min: number, max: number) {
 }
 
 export default function NeuralCanvas({
-                                         clusters,
-                                         projects,
-                                         onProjectSelect,
-                                         aboutFacts,
-                                         funFacts,
-                                         contactLinks,
-                                         onOpenContactModal,
-                                         aboutBio,
-                                         aboutPhotoUrl,
-                                         aboutHighlights,
-                                         aboutTimeline,
-                                         aboutCVUrl,
-                                     }: {
+                                          clusters,
+                                          projects,
+                                          onProjectSelect,
+                                          onAboutSelect,
+                                          aboutFacts,
+                                          funFacts,
+                                          contactLinks,
+                                          onOpenContactModal,
+                                          aboutBio,
+                                          aboutPhotoUrl,
+                                          aboutHighlights,
+                                          aboutTimeline,
+                                          aboutCVUrl,
+                                      }: {
     clusters: Cluster[];
     projects: Project[];
     onProjectSelect: (payload: any) => void;
+    onAboutSelect: (section: string) => void;
     aboutFacts: string[];
     funFacts: string[];
     contactLinks: ContactLink[];
@@ -171,6 +173,15 @@ export default function NeuralCanvas({
         const edges: Edge[] = [];
         let nid = 0;
 
+        // Calculate responsive sizes based on screen dimensions
+        const screenSize = Math.min(w, h);
+        const hubRadius = Math.max(15, Math.min(35, screenSize * 0.03)); // 15-35px based on screen size
+        const satelliteRadiusMin = Math.max(0.8, Math.min(3, screenSize * 0.002)); // 0.8-3px
+        const satelliteRadiusMax = Math.max(4, Math.min(12, screenSize * 0.008)); // 4-12px
+        // Much smaller orbit radii for mobile
+        const orbitRadiusMin = Math.max(20, Math.min(60, screenSize * 0.05)); // 30-80px (was 50-120px)
+        const orbitRadiusMax = Math.max(40, Math.min(90, screenSize * 0.08)); // 50-120px (was 80-180px)
+
         for (const {id} of clusters) {
             // hub
             nodes.push({
@@ -179,14 +190,14 @@ export default function NeuralCanvas({
                 y: (anchors.current[id]?.y ?? h * 0.5) + rand(-10, 10),
                 vx: 0,
                 vy: 0,
-                r: 25,
+                r: hubRadius,
                 clusterId: id,
                 isHub: true,
             });
             // satellites
             const satellites = 12;
             for (let i = 0; i < satellites; i++) {
-                const baseR = rand(70, 140);
+                const baseR = rand(orbitRadiusMin, orbitRadiusMax);
                 const theta = rand(0, Math.PI * 2);
                 const omega = rand(CALM.orbitOmegaMin, CALM.orbitOmegaMax) * (Math.random() < 0.5 ? -1 : 1);
                 const phase = rand(0, Math.PI * 2);
@@ -197,7 +208,7 @@ export default function NeuralCanvas({
                     y: (anchors.current[id]?.y ?? h * 0.5) + Math.sin(theta) * baseR,
                     vx: 0,
                     vy: 0,
-                    r: rand(1, 8),
+                    r: rand(satelliteRadiusMin, satelliteRadiusMax),
                     clusterId: id,
                     isHub: false,
                     theta,
@@ -210,6 +221,8 @@ export default function NeuralCanvas({
 
         // intra-cluster edges
         const clusterNodes = (cid: string) => nodes.filter((n) => n.clusterId === cid);
+        // Responsive edge distance based on orbit size
+        const edgeDistance = Math.max(80, Math.min(140, screenSize * 0.1)); // 80-140px based on screen size
         for (const c of clusters) {
             const list = clusterNodes(c.id);
             for (let i = 0; i < list.length; i++) {
@@ -219,7 +232,7 @@ export default function NeuralCanvas({
                     const dx = a.x - b.x,
                         dy = a.y - b.y;
                     const d2 = dx * dx + dy * dy;
-                    if (d2 < 140 * 140 && Math.random() < 0.08) edges.push({a: a.id, b: b.id, clusterId: c.id});
+                    if (d2 < edgeDistance * edgeDistance && Math.random() < 0.08) edges.push({a: a.id, b: b.id, clusterId: c.id});
                 }
             }
         }
@@ -302,28 +315,36 @@ export default function NeuralCanvas({
             return {x: ix, y: iy};
         };
 
-        const onMove = (e: PointerEvent) => {
+        // Helper function to find the best node at a given point
+        const findNodeAtPoint = (clientX: number, clientY: number) => {
             const rect = canvas.getBoundingClientRect();
-            const p = invert(e.clientX - rect.left, e.clientY - rect.top);
+            const p = invert(clientX - rect.left, clientY - rect.top);
             let best: { id: number; d2: number } | null = null;
             for (const n of nodes) {
                 const dx = p.x - n.x,
-                    dy = p.y - n.y,
-                    r = n.r + (n.isHub ? 16 : 6);
+                    dy = p.y - n.y;
+                // Responsive hit detection radius
+                const hitRadius = n.isHub ? Math.max(12, Math.min(20, size.w * 0.015)) : Math.max(4, Math.min(10, size.w * 0.008));
+                const r = n.r + hitRadius;
                 const d2 = dx * dx + dy * dy;
                 if (d2 <= r * r) best = !best || d2 < best.d2 ? {id: n.id, d2} : best;
             }
-            setHoverId(best ? best.id : null);
-            setHoverCluster(best ? (nodes[best.id].clusterId as Cluster["id"]) : null);
+            return best ? { node: nodes[best.id], point: p } : null;
+        };
+
+        const onMove = (e: PointerEvent) => {
+            const result = findNodeAtPoint(e.clientX, e.clientY);
+            setHoverId(result ? result.node.id : null);
+            setHoverCluster(result ? (result.node.clusterId as Cluster["id"]) : null);
 
             // look for project/contact hit
             let onSatellite = false;
             let tip: { x: number; y: number; text: string } | null = null;
 
-            if (expandedCluster) {
+            if (expandedCluster && result) {
                 for (const s of projectHit.current) {
-                    const dx = p.x - s.x,
-                        dy = p.y - s.y;
+                    const dx = result.point.x - s.x,
+                        dy = result.point.y - s.y;
                     if (dx * dx + dy * dy < s.r * s.r) {
                         onSatellite = true;
                         if (s.id.startsWith("contact:")) {
@@ -332,16 +353,24 @@ export default function NeuralCanvas({
                                 y: e.clientY - 16,
                                 text: s.id === "contact:message" ? "Send a message" : s.id.split(":")[1],
                             };
-                        } else {
-                            const proj = projects.find((pp) => pp.id === s.id);
-                            if (proj) tip = {x: e.clientX + 10, y: e.clientY - 16, text: proj.title};
-                        }
+                         } else if (s.id.startsWith("aboutfact:")) {
+                             const factIndex = parseInt(s.id.split(":")[1]);
+                             const fact = aboutFacts[factIndex];
+                             if (fact) tip = {x: e.clientX + 10, y: e.clientY - 16, text: fact};
+                         } else if (s.id.startsWith("funfact:")) {
+                             const factIndex = parseInt(s.id.split(":")[1]);
+                             const fact = funFacts[factIndex];
+                             if (fact) tip = {x: e.clientX + 10, y: e.clientY - 16, text: fact};
+                         } else {
+                             const proj = projects.find((pp) => pp.id === s.id);
+                             if (proj) tip = {x: e.clientX + 10, y: e.clientY - 16, text: proj.title};
+                         }
                         break;
                     }
                 }
             }
             setTooltip(tip);
-            canvas.style.cursor = onSatellite || (best && nodes[best.id].isHub) ? "pointer" : "default";
+            canvas.style.cursor = onSatellite || (result && result.node.isHub) ? "pointer" : "default";
         };
 
         const onLeave = () => {
@@ -372,18 +401,23 @@ export default function NeuralCanvas({
                         // get cluster color for splash
                         const c = clusters.find(c => c.id === expandedCluster)!.color;
 
-                        // NEW: pass an object (backwards-compatible parent handler accepts string or object)
-                        if (s.id.startsWith("contact:")) {
-                            if (s.id === "contact:message") onOpenContactModal();
-                            else {
-                                const key = s.id.split(":")[1];
-                                const link = contactLinks.find(l => l.id === (key as any));
-                                if (link) window.open(link.href, "_blank");
-                            }
-                        } else {
-                            onProjectSelect({id: s.id, x: sx, y: sy, color: c} as any);
-                            visited.current.add(s.id);
-                        }
+                                                 // NEW: pass an object (backwards-compatible parent handler accepts string or object)
+                         if (s.id.startsWith("contact:")) {
+                             if (s.id === "contact:message") onOpenContactModal();
+                             else {
+                                 const key = s.id.split(":")[1];
+                                 const link = contactLinks.find(l => l.id === (key as any));
+                                 if (link) window.open(link.href, "_blank");
+                             }
+                         } else if (s.id.startsWith("about:")) {
+                             // Handle About cluster elements
+                             const section = s.id.split(":")[1];
+                             onAboutSelect(section);
+                             visited.current.add(s.id);
+                         } else {
+                             onProjectSelect({id: s.id, x: sx, y: sy, color: c} as any);
+                             visited.current.add(s.id);
+                         }
                         // mark visited as before (if you use that)
                         visited.current.add(s.id);
                         return;
@@ -401,46 +435,82 @@ export default function NeuralCanvas({
                 return;
             }
 
-            // Zoomed out: hub expand
-            if (hoverId === null) return;
-            const n = nodes[hoverId];
-            if (!n.isHub) return;
+            // Zoomed out: hub expand - check both hoverId and direct click detection
+            let targetNode = hoverId !== null ? nodes[hoverId] : null;
+            
+            // If no hoverId (mobile case), check the click position directly
+            if (!targetNode) {
+                const result = findNodeAtPoint(e.clientX, e.clientY);
+                targetNode = result?.node || null;
+            }
+            
+                         if (!targetNode || !targetNode.isHub) return;
 
-            // expand hub + zoom
-            n.pulse = 0.01;
-            const target = anchors.current[n.clusterId];
-            const cx = target?.x ?? size.w / 2;
-            const cy = target?.y ?? size.h / 2;
-            const desiredScale = CALM.zoomScale;
-            const duration = prefersReducedMotion ? 250 : CALM.zoomDuration;
+             // expand hub + zoom
+             targetNode.pulse = 0.01;
+             const target = anchors.current[targetNode.clusterId];
+             const cx = target?.x ?? size.w / 2;
+             const cy = target?.y ?? size.h / 2;
+             const desiredScale = CALM.zoomScale;
+             const duration = prefersReducedMotion ? 250 : CALM.zoomDuration;
 
-            const start = performance.now();
-            const startTransform = {...transform};
-            setZooming(true);
-            setExpandedCluster(n.clusterId as Cluster["id"]);
+             const start = performance.now();
+             const startTransform = {...transform};
+             setZooming(true);
+             setExpandedCluster(targetNode.clusterId as Cluster["id"]);
 
-            const tick = (now: number) => {
-                const tt = Math.min(1, (now - start) / duration);
-                const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
-                const ease = easeInOut(tt);
-                const sx = startTransform.sx + (desiredScale - startTransform.sx) * ease;
-                const sy = startTransform.sy + (desiredScale - startTransform.sy) * ease;
-                const tx = startTransform.tx + ((size.w / 2 - cx * sx) - startTransform.tx) * ease;
-                const ty = startTransform.ty + ((size.h / 2 - cy * sy) - startTransform.ty) * ease;
-                setTransform({sx, sy, tx, ty});
-                if (tt < 1) requestAnimationFrame(tick);
-                else setZooming(false);
-            };
-            requestAnimationFrame(tick);
+             const tick = (now: number) => {
+                 const tt = Math.min(1, (now - start) / duration);
+                 const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+                 const ease = easeInOut(tt);
+                 const sx = startTransform.sx + (desiredScale - startTransform.sx) * ease;
+                 const sy = startTransform.sy + (desiredScale - startTransform.sy) * ease;
+                 const tx = startTransform.tx + ((size.w / 2 - cx * sx) - startTransform.tx) * ease;
+                 const ty = startTransform.ty + ((size.h / 2 - cy * sy) - startTransform.ty) * ease;
+                 setTransform({sx, sy, tx, ty});
+                 if (tt < 1) requestAnimationFrame(tick);
+                 else setZooming(false);
+             };
+             requestAnimationFrame(tick);
+        };
+
+        // Add touch event handling for mobile
+        const onTouchStart = (e: TouchEvent) => {
+            e.preventDefault(); // Prevent default to avoid double-firing with click
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const result = findNodeAtPoint(touch.clientX, touch.clientY);
+                setHoverId(result ? result.node.id : null);
+                setHoverCluster(result ? (result.node.clusterId as Cluster["id"]) : null);
+            }
+        };
+
+        const onTouchEnd = (e: TouchEvent) => {
+            if (e.changedTouches.length === 1) {
+                const touch = e.changedTouches[0];
+                // Simulate a click at the touch end position
+                const clickEvent = new PointerEvent('click', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    bubbles: true,
+                    cancelable: true
+                });
+                canvas.dispatchEvent(clickEvent);
+            }
         };
 
         canvas.addEventListener("pointermove", onMove);
         canvas.addEventListener("pointerleave", onLeave);
         canvas.addEventListener("click", onClick);
+        canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+        canvas.addEventListener("touchend", onTouchEnd);
+        
         return () => {
             canvas.removeEventListener("pointermove", onMove);
             canvas.removeEventListener("pointerleave", onLeave);
             canvas.removeEventListener("click", onClick);
+            canvas.removeEventListener("touchstart", onTouchStart);
+            canvas.removeEventListener("touchend", onTouchEnd);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hoverId, transform, zooming, router, expandedCluster, onProjectSelect, contactLinks]);
@@ -481,7 +551,11 @@ export default function NeuralCanvas({
             <canvas
                 ref={canvasRef}
                 className="fixed left-0 right-0 z-0"
-                style={{top: "var(--safe-top, 88px)", bottom: "var(--safe-bottom, 72px)"}}
+                style={{
+                    top: "var(--safe-top, 88px)", 
+                    bottom: "var(--safe-bottom, 72px)",
+                    touchAction: "none" // Prevent default touch behaviors
+                }}
                 aria-label="Interactive neural network map of skills and projects"
                 role="img"
             />
@@ -503,19 +577,7 @@ export default function NeuralCanvas({
                     ← Back
                 </button>
             )}
-            {/* ABOUT PANEL (appears when About cluster is expanded) */}
-            {expandedCluster === "about" && (
-                <div className="fixed z-40 right-6 top-[calc(var(--safe-top,20px)+16px)] bottom-[calc(var(--safe-bottom,20px)+16px)] pointer-events-auto max-h-[calc(100vh-var(--safe-top,88px)-var(--safe-bottom,72px)-32px)] flex"
-                ><AboutPanel
-                    photo={aboutPhotoUrl ?? "/portrait.jpg"}
-                    bio={aboutBio ?? ""}
-                    highlights={aboutHighlights ?? []}
-                    timeline={aboutTimeline ?? []}
-                    onDownloadCV={() => aboutCVUrl && window.open(aboutCVUrl, "_blank")}
-                    onContact={onOpenContactModal}
-                />
-                </div>
-            )}
+            
 
         </>
     );

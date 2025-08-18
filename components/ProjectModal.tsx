@@ -106,7 +106,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
         >
             <div
                 ref={panelRef}
-                className={`relative w-[min(92vw,1000px)] max-h-[86vh] overflow-hidden rounded-2xl
+                className={`relative w-[min(95vw,1000px)] h-[min(90vh,800px)] md:h-auto md:max-h-[86vh] overflow-hidden rounded-2xl
                     border border-white/10 shadow-2xl
                     bg-[linear-gradient(180deg,rgba(255,255,255,0.10)_0%,rgba(255,255,255,0.04)_100%)]
                     backdrop-blur-xl
@@ -126,37 +126,39 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                 />
 
                 {/* Header */}
-                <div className="flex items-start gap-3 p-5 border-b border-white/10">
-                    <div
-                        className="h-9 w-9 rounded-xl shrink-0"
-                        style={{ background: `radial-gradient(60% 60% at 50% 50%, ${hexToRgba(color,0.85)} 0%, ${hexToRgba(color,0.35)} 60%, rgba(0,0,0,0) 100%)` }}
-                        aria-hidden
-                    />
-                    <div className="min-w-0">
-                        <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">{project.title}</h2>
-                        <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">{project.description}</p>
-                        {/* Tech chips */}
-                        {project.tech?.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                                {project.tech.map(t => (
-                                    <span
-                                        key={t}
-                                        className="text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-gray-200"
-                                    >
-                    {t}
-                  </span>
-                                ))}
-                            </div>
-                        )}
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-4 sm:p-5 border-b border-white/10">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div
+                            className="h-9 w-9 rounded-xl shrink-0"
+                            style={{ background: `radial-gradient(60% 60% at 50% 50%, ${hexToRgba(color,0.85)} 0%, ${hexToRgba(color,0.35)} 60%, rgba(0,0,0,0) 100%)` }}
+                            aria-hidden
+                        />
+                        <div className="min-w-0 flex-1">
+                            <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">{project.title}</h2>
+                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-full sm:max-w-[70%]">{project.description}</p>
+                            {/* Tech chips */}
+                            {project.tech?.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-1.5">
+                                    {project.tech.map(t => (
+                                        <span
+                                            key={t}
+                                            className="text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-gray-200"
+                                        >
+                        {t}
+                      </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="ml-auto flex items-center gap-4 w-fit">
+                    <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-4 w-full sm:w-fit">
                         {project.repoUrl && (
                             <a
                                 href={project.repoUrl}
                                 target="_blank"
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 inline-flex items-center"
+                                className="px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center"
                             >
                                 GitHub <span className="ml-1">↗</span>
                             </a>
@@ -165,14 +167,14 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                             <a
                                 href={project.demoUrl}
                                 target="_blank"
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 inline-flex items-center"
+                                className="px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center"
                             >
                                 Live <span className="ml-1">↗</span>
                             </a>
                         )}
                         <button
                             onClick={copyShare}
-                            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100"
+                            className="px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100"
                             title="Copy share link"
                         >
                             {copied ? "Copied!" : "Share"}
@@ -188,7 +190,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                 </div>
 
                 {/* Body */}
-                <div className="grid md:grid-cols-2 gap-0 md:gap-4 p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-4 p-4 sm:p-5">
                     {/* Media column */}
                     <div className="relative">
                         {/* carousel container with tilt */}
@@ -313,12 +315,12 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                         )}
 
                         {/* Links */}
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-2">
                             {project.demoUrl && (
                                 <a
                                     href={project.demoUrl}
                                     target="_blank"
-                                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100"
+                                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 text-center"
                                 >
                                     Try the Live Demo ↗
                                 </a>
@@ -327,7 +329,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                 <a
                                     href={project.repoUrl}
                                     target="_blank"
-                                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100"
+                                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm text-gray-100 text-center"
                                 >
                                     View on GitHub ↗
                                 </a>
@@ -341,8 +343,8 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                             </button>
                         </div>
 
-                        {/* Keyboard hints */}
-                        <div className="mt-auto pt-5 text-[11px] text-gray-400/90">
+                        {/* Keyboard hints - hidden on mobile */}
+                        <div className="mt-auto pt-5 text-[11px] text-gray-400/90 hidden sm:block">
                             <span className="inline-block mr-3">Esc: Close</span>
                             {media.length > 1 && <span className="inline-block mr-3">←/→: Media</span>}
                             {project.demoUrl && <span className="inline-block mr-3">D: Demo</span>}

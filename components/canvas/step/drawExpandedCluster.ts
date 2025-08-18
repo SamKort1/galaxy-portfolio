@@ -38,9 +38,11 @@ export function drawExpandedCluster(env: StepEnv) {
         // --- Projects / Skills ---
         if (expandedCluster !== "about" && expandedCluster !== "contact") {
             const skillList = (skills as any)[expandedCluster] as string[] | undefined;
-            if (skillList && skillList.length) {
-                const skillBase = 120;
-                const skillOrbit = skillBase + Math.sin(timeRef.current * 0.5) * 4;
+                         if (skillList && skillList.length) {
+                 // Responsive skill orbit radius based on screen size
+                 const screenSize = Math.min(env.size.w, env.size.h);
+                 const skillBase = Math.max(50, Math.min(100, screenSize * 0.15)); // 50-100px based on screen size (increased from 30-60px)
+                 const skillOrbit = skillBase + Math.sin(timeRef.current * 0.5) * 4;
                 const skillSpeed = prefersReducedMotion ? 0.05 : 0.2;
 
                 ctx.beginPath();
@@ -69,8 +71,10 @@ export function drawExpandedCluster(env: StepEnv) {
             const key = expandedCluster as Exclude<typeof expandedCluster, "about" | "contact">;
             const projectList = projects.filter((p) => p.cluster === key);
 
-            const projBase = 170;
-            const projOrbit = projBase + Math.sin(timeRef.current * 0.7) * 6;
+                         // Responsive project orbit radius based on screen size
+             const screenSize = Math.min(env.size.w, env.size.h);
+             const projBase = Math.max(80, Math.min(180, screenSize * 0.25)); // 120-220px based on screen size (increased from 80-170px)
+            const projOrbit = projBase + Math.sin(timeRef.current * 0.7) * 3;
             const projSpeed = prefersReducedMotion ? 0.1 : 0.35;
 
             // orbit guide
@@ -101,90 +105,108 @@ export function drawExpandedCluster(env: StepEnv) {
                 projectHit.current.push({ id: p.id, x: px, y: py, r: pr + 6 });
             });
         }
-        // --- About ---
-        if (expandedCluster === "about") {
-            const list = [...aboutFacts, ...funFacts];
-            if (list.length) {
-                const PAGE = 4;
-                const pageCount = Math.ceil(list.length / PAGE);
+                 // --- About ---
+         if (expandedCluster === "about") {
+             // Create orbiting elements for About cluster
+             const aboutElements = [
+                 { id: "about:profile", label: "Profile", icon: "👤" },
+                 { id: "about:timeline", label: "Timeline", icon: "📅" },
+                 { id: "about:skills", label: "Skills", icon: "⚡" },
+                 { id: "about:contact", label: "Contact", icon: "📧" }
+             ];
 
-                // Timing
-                const PERIOD = 3.2;   // total time each page is shown
-                const XFADE  = 1;   // cross-fade duration at the start of each cycle
-                const t      = timeRef.current;
+                           // Responsive about orbit radius based on screen size
+              const screenSize = Math.min(env.size.w, env.size.h);
+              const orbit = Math.max(120, Math.min(180, screenSize * 0.2)); // 100-180px based on screen size (increased from 70-130px)
+             const speed = env.prefersReducedMotion ? 0.06 : 0.25;
 
-                const phaseSecs = ((t % PERIOD) + PERIOD) % PERIOD;
+             // orbit guide
+             ctx.beginPath();
+             ctx.strokeStyle = `rgba(${r},${g},${bcol},0.18)`;
+             ctx.lineWidth = 1;
+             ctx.arc(hub.x, hub.y, orbit, 0, Math.PI * 2);
+             ctx.stroke();
 
-                const smooth01 = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
-                const k = phaseSecs < XFADE ? smooth01(phaseSecs / XFADE) : 0;
+             aboutElements.forEach((element, i) => {
+                 const angle = timeRef.current * speed + (i / aboutElements.length) * Math.PI * 2;
+                 const x = hub.x + Math.cos(angle) * orbit;
+                 const y = hub.y + Math.sin(angle) * orbit;
 
-                const fromStep = Math.floor((t - XFADE) / PERIOD);
-                const posMod   = (a: number, m: number) => ((a % m) + m) % m;
-                const fromPage = posMod(fromStep, pageCount);
-                const toPage   = (fromPage + 1) % pageCount;
+                 // Gem-style node with inner glow + flare
+                 const pr = 12;
+                 drawProjectGem(ctx, x, y, pr, { r, g, b: bcol }, {
+                     innerGlow: true,
+                     flare: true,
+                     outline: true,
+                     time: timeRef.current,
+                 });
 
-                const getSlice = (p: number) => list.slice(p * PAGE, p * PAGE + PAGE);
+                 // label + hit region
+                 drawLabel(x, y, element.label);
+                 projectHit.current.push({ id: element.id, x, y, r: pr + 6 });
+             });
 
-                const orbit = 130;
-                const baseSpeed = env.prefersReducedMotion ? 0.02 : 0.07;
-                const angleBase = t * baseSpeed;
+                                                                   // Add combined facts as orbiting elements (cycle through 2 at a time)
+              if ((env.aboutFacts && env.aboutFacts.length > 0) || (env.funFacts && env.funFacts.length > 0)) {
+                  // Combined orbit for all facts
+                  const factOrbit = Math.max(50, Math.min(100, screenSize * 0.15));
+                  const factSpeed = env.prefersReducedMotion ? 0.05 : 0.18;
 
-                // faint orbit guide
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(${r},${g},${bcol},0.12)`;
-                ctx.lineWidth = 1;
-                ctx.arc(hub.x, hub.y, orbit, 0, Math.PI * 2);
-                ctx.stroke();
+                  // orbit guide for facts
+                  ctx.beginPath();
+                  ctx.strokeStyle = `rgba(${r},${g},${bcol},0.12)`;
+                  ctx.lineWidth = 1;
+                  ctx.arc(hub.x, hub.y, factOrbit, 0, Math.PI * 2);
+                  ctx.stroke();
 
-                const slidePx = 10; // subtle radial slide
+                  // Combine about facts and fun facts into one array
+                  const allFacts = [...(env.aboutFacts || []), ...(env.funFacts || [])];
+                  
+                  if (allFacts.length > 0) {
+                      // Cycle through facts 2 at a time
+                      const cycleSpeed = env.prefersReducedMotion ? 0.05 : 0.2;
+                      const cycleTime = timeRef.current * cycleSpeed;
+                      const totalFacts = allFacts.length;
+                      const currentPair = Math.floor(cycleTime) % Math.ceil(totalFacts / 2);
+                      
+                      // Show 2 facts at a time
+                      for (let i = 0; i < 2; i++) {
+                          const factIndex = (currentPair * 2 + i) % totalFacts;
+                          const fact = allFacts[factIndex];
+                          
+                          if (fact) {
+                              const angle = timeRef.current * factSpeed + (i * Math.PI) + Math.PI / 6; // 2 facts opposite each other
+                              const x = hub.x + Math.cos(angle) * factOrbit;
+                              const y = hub.y + Math.sin(angle) * factOrbit;
 
-                const drawPage = (items: string[], alpha: number, slideSign: number) => {
-                    const n = Math.max(1, items.length);
-                    for (let i = 0; i < n; i++) {
-                        const label = items[i];
-                        const angle = angleBase + (i / n) * Math.PI * 2;
-                        const rad   = orbit + slideSign * slidePx * (1 - alpha);
-                        const x = hub.x + Math.cos(angle) * rad;
-                        const y = hub.y + Math.sin(angle) * rad;
+                              // Pill-style chip for facts (like skills)
+                              drawSkillChip(ctx, x, y, `${fact}`, {
+                                  r,
+                                  g,
+                                  b: bcol,
+                                  time: timeRef.current,
+                                  padX: 8,
+                                  padY: 22
+                              });
 
-                        ctx.save();
-                        ctx.globalAlpha = alpha;
-                        drawSkillChip(ctx, x, y, label, { r, g, b: bcol, time: t, padY: 22, padX: -20 });
-                        ctx.restore();
-                    }
-                };
-
-                const currentItems = getSlice(fromPage);
-                const nextItems    = getSlice(toPage);
-
-                // current fades out + slides slightly inward
-                drawPage(currentItems, 1 - k, -1);
-                // next fades in + slides slightly outward
-                drawPage(nextItems, k, +1);
-
-                // page dots (blend between the two)
-                const dotsY = hub.y + 28;
-                for (let i = 0; i < pageCount; i++) {
-                    const ddx = (i - (pageCount - 1) / 2) * 14;
-                    ctx.beginPath();
-                    const activeAlpha = i === fromPage ? 1 - k : i === toPage ? k : 0;
-                    ctx.fillStyle =
-                        activeAlpha > 0
-                            ? `rgba(${r},${g},${bcol},${0.25 + 0.65 * activeAlpha})`
-                            : "rgba(255,255,255,0.2)";
-                    ctx.arc(hub.x + ddx, dotsY, 2 + activeAlpha, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        }
+                              // hit region for facts - determine if it's an about fact or fun fact
+                              const isAboutFact = factIndex < (env.aboutFacts?.length || 0);
+                              const originalIndex = isAboutFact ? factIndex : factIndex - (env.aboutFacts?.length || 0);
+                              const factId = isAboutFact ? `aboutfact:${originalIndex}` : `funfact:${originalIndex}`;
+                              projectHit.current.push({ id: factId, x, y, r: 20 });
+                          }
+                      }
+                  }
+              }
+         }
 
 
-        // --- Contact ---
-        if (expandedCluster === "contact") {
-            const list = contactLinks;
-            const base = 170;
-            const orbit = base + Math.sin(timeRef.current * 0.5) * 4;
-            const speed = env.prefersReducedMotion ? 0.06 : 0.2;
+                 // --- Contact ---
+         if (expandedCluster === "contact") {
+             const list = contactLinks;
+             const screenSize = Math.min(env.size.w, env.size.h);
+             const orbit = Math.max(50, Math.min(100, screenSize * 0.1));
+             const speed = env.prefersReducedMotion ? 0.06 : 0.2;
 
             list.forEach((link, i) => {
                 const angle = timeRef.current * speed + (i / Math.max(1, list.length)) * Math.PI * 2 + Math.PI / 6;

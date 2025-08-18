@@ -15,9 +15,9 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
     const [state, formAction] = useFormState(sendMessageAction, { status: "idle" } as MsgState);
 
     return (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center"
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
              onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div className="glass rounded-2xl max-w-lg w-full p-6 relative">
+            <div className="glass rounded-2xl max-w-lg w-full p-4 sm:p-6 relative">
                 <button onClick={onClose} className="absolute top-3 right-3 text-gray-300 hover:text-white">✕</button>
                 <h2 className="text-xl font-semibold mb-2">Send a message</h2>
                 <form action={formAction} className="grid gap-3">
