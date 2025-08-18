@@ -43,7 +43,7 @@ type Node = {
     theta?: number; // current angle (rad)
     baseR?: number; // base orbit radius
     omega?: number; // angular velocity (rad/s)
-    phase?: number; // radial “breathing” phase
+    phase?: number; // radial "breathing" phase
 };
 
 type Edge = {
@@ -101,6 +101,7 @@ export default function NeuralCanvas({
     const [zooming, setZooming] = useState(false);
     const [expandedCluster, setExpandedCluster] = useState<Cluster["id"] | null>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const timeRef = useRef(0);
     const visited = useRef<Set<string>>(new Set()); // clicked projects
 
@@ -252,6 +253,10 @@ export default function NeuralCanvas({
         }
 
         graph.current = {nodes, edges};
+        
+        // Set loading to false after a short delay to ensure everything is ready
+        setTimeout(() => setIsLoading(false), 1000);
+        
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [size.w, size.h, JSON.stringify(clusters)]);
 
@@ -305,7 +310,7 @@ export default function NeuralCanvas({
     // pointer interactions
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas || isLoading) return;
 
         const {nodes} = graph.current;
 
@@ -501,19 +506,19 @@ export default function NeuralCanvas({
 
         canvas.addEventListener("pointermove", onMove);
         canvas.addEventListener("pointerleave", onLeave);
-        canvas.addEventListener("click", onClick);
+        canvas.addEventListener("pointerdown", onClick);
         canvas.addEventListener("touchstart", onTouchStart, { passive: false });
         canvas.addEventListener("touchend", onTouchEnd);
         
         return () => {
             canvas.removeEventListener("pointermove", onMove);
             canvas.removeEventListener("pointerleave", onLeave);
-            canvas.removeEventListener("click", onClick);
+            canvas.removeEventListener("pointerdown", onClick);
             canvas.removeEventListener("touchstart", onTouchStart);
             canvas.removeEventListener("touchend", onTouchEnd);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hoverId, transform, zooming, router, expandedCluster, onProjectSelect, contactLinks]);
+    }, [hoverId, transform, zooming, router, expandedCluster, onProjectSelect, contactLinks, isLoading]);
 
     // helper: animated collapse to default transform
     const animateCollapse = () => {
@@ -559,6 +564,92 @@ export default function NeuralCanvas({
                 aria-label="Interactive neural network map of skills and projects"
                 role="img"
             />
+            
+            {/* Loading Overlay */}
+            {isLoading && (
+                <div className="fixed inset-0 z-10 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+                    <div className="text-center">
+                        {/* Neural Network Loading Animation */}
+                        <div className="relative w-32 h-32 mx-auto mb-6">
+                            {/* Central Hub */}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-8 h-8 bg-purple-400 rounded-full animate-pulse shadow-lg shadow-purple-400/50"></div>
+                            </div>
+                            
+                            {/* Orbiting Nodes */}
+                            {[...Array(6)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute inset-0 flex items-center justify-center"
+                                    style={{
+                                        animation: `orbit ${2 + i * 0.3}s linear infinite`,
+                                        animationDelay: `${i * 0.2}s`
+                                    }}
+                                >
+                                    <div 
+                                        className="w-3 h-3 bg-cyan-400 rounded-full animate-ping"
+                                        style={{
+                                            transform: `translateX(${40 + i * 8}px)`,
+                                            animationDelay: `${i * 0.1}s`
+                                        }}
+                                    ></div>
+                                </div>
+                            ))}
+                            
+                            {/* Connecting Lines */}
+                            <svg className="absolute inset-0 w-full h-full" style={{transform: 'rotate(0deg)'}}>
+                                <defs>
+                                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="rgba(34, 211, 238, 0.3)" />
+                                        <stop offset="50%" stopColor="rgba(167, 139, 250, 0.5)" />
+                                        <stop offset="100%" stopColor="rgba(34, 211, 238, 0.3)" />
+                                    </linearGradient>
+                                </defs>
+                                {[...Array(6)].map((_, i) => {
+                                    const angle = (i * 60) * (Math.PI / 180);
+                                    const x1 = 64, y1 = 64;
+                                    const x2 = 64 + Math.cos(angle) * 40;
+                                    const y2 = 64 + Math.sin(angle) * 40;
+                                    return (
+                                        <line
+                                            key={i}
+                                            x1={x1}
+                                            y1={y1}
+                                            x2={x2}
+                                            y2={y2}
+                                            stroke="url(#lineGradient)"
+                                            strokeWidth="1"
+                                            opacity="0.6"
+                                            style={{
+                                                animation: `pulse 2s ease-in-out infinite`,
+                                                animationDelay: `${i * 0.2}s`
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </svg>
+                        </div>
+                        
+                        {/* Loading Text */}
+                        <div className="text-white/80 text-lg font-medium mb-2">Initializing Neural Network</div>
+                        <div className="text-white/60 text-sm">Connecting nodes and establishing orbits...</div>
+                        
+                        {/* Progress Dots */}
+                        <div className="flex justify-center gap-2 mt-6">
+                            {[...Array(3)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                                    style={{
+                                        animationDelay: `${i * 0.2}s`
+                                    }}
+                                ></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             {/* simple tooltip */}
             {tooltip && (
                 <div
@@ -611,7 +702,7 @@ function drawPillLabelAlpha(
 
     // text
     ctx.fillStyle = "rgba(235,240,255,0.92)";
-    ctx.fillText(clipped, left + pad, top + h - 7);
+    ctx.fillText(clipped, left + pad, top + h - 6);
     ctx.restore();
 }
 
