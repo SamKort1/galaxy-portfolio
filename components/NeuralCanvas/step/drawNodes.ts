@@ -32,7 +32,7 @@ export function drawNodes(env: StepEnv) {
                 parseInt(clusterHex.slice(3, 5), 16),
                 parseInt(clusterHex.slice(5, 7), 16),
             ];
-            drawHubLabel(ctx, n.x, n.y, label, { r, g, b });
+            drawHubLabel(ctx, n.x, n.y, label, { r, g, b }, hoverCluster === n.clusterId);
         } else {
             // Satellite: subtle glow + twinkle
             ctx.save();
