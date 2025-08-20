@@ -92,8 +92,8 @@ export default function AboutTimelineModal({
                     </div>
 
                     {/* Body */}
-                    <div className="p-4 sm:p-5 overflow-y-auto h-full custom-scrollbar">
-                        <div className="space-y-6">
+                    <div className="p-4 sm:p-5 overflow-y-auto h-[calc(100%-80px)] custom-scrollbar">
+                        <div className="space-y-6 pb-6">
                             {timeline.map((t) => (
                                 <div key={`${t.year}-${t.title}`} className="flex gap-4">
                                     {/* Timeline dot and line */}
