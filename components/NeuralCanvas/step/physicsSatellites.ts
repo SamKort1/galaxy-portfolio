@@ -1,8 +1,11 @@
 import type { StepEnv } from "./env";
 
 export function physicsSatellites(env: StepEnv, dt: number) {
-    const { graph, anchors, CALM, prefersReducedMotion, timeRef } = env;
+    const { graph, anchors, CALM, prefersReducedMotion, timeRef, blackholeActive } = env;
     const { nodes } = graph.current;
+
+    // If blackhole is active, don't apply orbital physics at all
+    if (blackholeActive) return;
 
     // -------- Physics setup --------
     const awPhase = timeRef.current * CALM.anchorWobbleFreq;
@@ -29,6 +32,7 @@ export function physicsSatellites(env: StepEnv, dt: number) {
             n.x = anchor.x + Math.cos(n.theta) * radius;
             n.y = anchor.y + Math.sin(n.theta) * radius;
 
+            // Reset velocities
             n.vx = 0;
             n.vy = 0;
         }

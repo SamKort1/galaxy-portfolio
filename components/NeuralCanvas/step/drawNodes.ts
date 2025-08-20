@@ -2,7 +2,7 @@ import type { StepEnv } from "./env";
 import {drawHubFancy, drawHubLabel, drawOrbitalNode} from "./drawHelpers";
 
 export function drawNodes(env: StepEnv) {
-    const { ctx, graph, hoverId, hoverCluster, clusters, timeRef } = env;
+    const { ctx, graph, hoverId, hoverCluster, clusters, timeRef, transform, labelFadeAlpha } = env;
     const { nodes } = graph.current;
 
     for (const n of nodes) {
@@ -26,14 +26,23 @@ export function drawNodes(env: StepEnv) {
                 timeRef.current
             );
 
+            // Draw hub labels with fade animation
             const label = cluster?.name ?? n.clusterId;
             const [r, g, b] = [
                 parseInt(clusterHex.slice(1, 3), 16),
                 parseInt(clusterHex.slice(3, 5), 16),
                 parseInt(clusterHex.slice(5, 7), 16),
             ];
+            
+            // Apply fade alpha to labels
+            ctx.save();
+            ctx.globalAlpha = labelFadeAlpha;
             drawHubLabel(ctx, n.x, n.y, label, { r, g, b }, hoverCluster === n.clusterId);
+            ctx.restore();
         } else {
+            // Skip drawing satellites that have been consumed by blackhole
+            if (n.r <= 0) continue;
+            
             // Satellite: subtle glow + twinkle
             ctx.save();
             ctx.globalAlpha = alpha;

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { SECRET_THEMES, SECRET_COMMANDS } from '../constants';
 
-export function useSecretFeatures() {
+export function useSecretFeatures(onBlackholeActivate?: () => void) {
     const [secretTheme, setSecretTheme] = useState<string | null>(null);
     const [showHelp, setShowHelp] = useState(false);
     const [devMode, setDevMode] = useState(false);
@@ -45,6 +45,12 @@ export function useSecretFeatures() {
                     }
                     if (trimmed.includes("retro")) {
                         setSecretTheme("retro");
+                        setThemeFlash(true);
+                        setTimeout(() => setThemeFlash(false), 300);
+                        return "";
+                    }
+                    if (trimmed.includes("blackhole")) {
+                        onBlackholeActivate?.();
                         setThemeFlash(true);
                         setTimeout(() => setThemeFlash(false), 300);
                         return "";

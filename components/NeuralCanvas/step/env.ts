@@ -31,6 +31,17 @@ export type StepEnv = {
     hoverId: number | null;
     hoverCluster: string | null;
 
+    // Animation state
+    labelFadeAlpha: number;
+    expandedFadeAlpha: number;
+
+    // Blackhole state
+    blackholeActive: boolean;
+    blackholeX: number;
+    blackholeY: number;
+    blackholeRadius: number;
+    blackholeStrength: number;
+
     // constants
     CALM: {
         hubAttract: number;

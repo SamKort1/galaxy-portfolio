@@ -8,10 +8,10 @@ export const CALM = {
     orbitWobbleFreq: 2,
     anchorWobbleAmp: 1.2,
     anchorWobbleFreq: 2,
-    edgeBaseAlpha: 0.2,
+    edgeBaseAlpha: 0.06,
     edgePulseAmp: 0.005,
     edgePulseFreq: 1,
-    zoomScale: 1.7,
+    zoomScale: 1.6,
     zoomDuration: 1000,
     unzoomDuration: 600,
 };
@@ -61,6 +61,7 @@ export const SECRET_COMMANDS = [
     { command: "matrix", description: "Enable Matrix green theme" },
     { command: "cyberpunk", description: "Enable Cyberpunk neon theme" },
     { command: "retro", description: "Enable Retro 80s theme" },
+    { command: "blackhole", description: "Create a blackhole that sucks in everything" },
     { command: "help", description: "Show this help message" },
     { command: "reset", description: "Reset to default theme" },
     { command: "dev", description: "Toggle developer mode" }

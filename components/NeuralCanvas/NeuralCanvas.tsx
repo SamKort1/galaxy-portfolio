@@ -42,6 +42,34 @@ export default function NeuralCanvas({
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Animation state for fade effects
+    const [labelFadeAlpha, setLabelFadeAlpha] = useState(1);
+    const [expandedFadeAlpha, setExpandedFadeAlpha] = useState(1);
+
+    // Blackhole state
+    const [blackholeActive, setBlackholeActive] = useState(false);
+    const [blackholeX, setBlackholeX] = useState(0);
+    const [blackholeY, setBlackholeY] = useState(0);
+    const [blackholeRadius, setBlackholeRadius] = useState(100);
+    const [blackholeStrength, setBlackholeStrength] = useState(5000);
+
+    // Blackhole activation callback
+    const activateBlackhole = useCallback(() => {
+        // Position blackhole at random location on screen
+        const margin = 100; // Keep some margin from edges
+        const randomX = margin + Math.random() * (size.w - 2 * margin);
+        const randomY = margin + Math.random() * (size.h - 2 * margin);
+        
+        setBlackholeX(randomX);
+        setBlackholeY(randomY);
+        setBlackholeActive(true);
+        
+        // Deactivate after 15 seconds (longer duration)
+        setTimeout(() => {
+            setBlackholeActive(false);
+        }, 15000);
+    }, [size.w, size.h]);
+
     // Secret features hook
     const {
         secretTheme,
@@ -63,7 +91,7 @@ export default function NeuralCanvas({
         devModeTimeoutRef,
         fpsRef,
         SECRET_THEMES
-    } = useSecretFeatures();
+    } = useSecretFeatures(activateBlackhole);
 
     // Graph setup hook
     const { graph, anchors } = useGraphSetup(size, clusters, satelliteMultiplier, edgeMultiplier);
@@ -160,6 +188,13 @@ export default function NeuralCanvas({
             drawPillLabelAlpha,
             aboutFacts: aboutFacts ?? [],
             funFacts: funFacts ?? [],
+            labelFadeAlpha,
+            expandedFadeAlpha,
+            blackholeActive,
+            blackholeX,
+            blackholeY,
+            blackholeRadius,
+            blackholeStrength,
         };
 
         const step = (t: number) => {
@@ -215,7 +250,7 @@ export default function NeuralCanvas({
 
         raf = requestAnimationFrame(step);
         return () => cancelAnimationFrame(raf);
-    }, [size.w, size.h, size, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme, SECRET_THEMES, anchors, graph, setFps, fpsRef]);
+    }, [size.w, size.h, size, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme, SECRET_THEMES, anchors, graph, setFps, fpsRef, labelFadeAlpha, expandedFadeAlpha, blackholeActive, blackholeX, blackholeY, blackholeRadius, blackholeStrength]);
 
     // Apply secret theme background
     useEffect(() => {
@@ -260,10 +295,20 @@ export default function NeuralCanvas({
 
             setTransform({ sx, sy, tx, ty });
 
+            // Animate label fade in (labels appear as we zoom out)
+            const labelFade = Math.min(1, tt * 2); // Labels fade in faster
+            setLabelFadeAlpha(labelFade);
+
+            // Animate expanded content fade out (content disappears as we zoom out)
+            const expandedFade = Math.max(0, 1 - tt * 1.5); // Content fades out faster
+            setExpandedFadeAlpha(expandedFade);
+
             if (tt < 1) requestAnimationFrame(tick);
             else {
                 setZooming(false);
                 setExpandedCluster(null);
+                setLabelFadeAlpha(1);
+                setExpandedFadeAlpha(1);
                 onProjectSelect(null);
             }
         };
@@ -459,6 +504,15 @@ export default function NeuralCanvas({
                 const tx = startTransform.tx + ((size.w / 2 - cx * sx) - startTransform.tx) * ease;
                 const ty = startTransform.ty + ((size.h / 2 - cy * sy) - startTransform.ty) * ease;
                 setTransform({ sx, sy, tx, ty });
+
+                // Animate label fade out (labels disappear as we zoom in)
+                const labelFade = Math.max(0, 1 - tt * 1.2); // Labels fade out slightly faster
+                setLabelFadeAlpha(labelFade);
+
+                // Animate expanded content fade in (content appears as we zoom in)
+                const expandedFade = Math.min(1, tt * 1.5); // Content fades in faster
+                setExpandedFadeAlpha(expandedFade);
+
                 if (tt < 1) requestAnimationFrame(tick);
                 else setZooming(false);
             };

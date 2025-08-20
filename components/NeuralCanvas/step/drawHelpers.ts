@@ -433,11 +433,11 @@ export function drawHubLabel(
 ) {
     ctx.font = "600 16px Inter, ui-sans-serif, system-ui, sans-serif";
     const padX = 12;
-    const textW = ctx.measureText(label).width;
+    const textW = ctx.measureText(label).width + 10;
     const w = textW + padX * 2;
-    const h = 28;
+    const h = 30;
     const left = x - w / 2;
-    const top = y - h - 30;
+    const top = y - h - 60;
 
     // Enhanced gradient with better depth
     const grad = ctx.createLinearGradient(left, top, left, top + h);
@@ -477,5 +477,128 @@ export function drawHubLabel(
     ctx.fillText(label, x, top + h / 2);
     
     ctx.restore();
+}
+
+export function drawBlackhole(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    radius: number,
+    strength: number,
+    time: number
+) {
+    // Create multiple layers for the blackhole effect
+    
+    // Outer event horizon - swirling particles
+    const particleCount = 50;
+    const outerRadius = radius * 3;
+    
+    ctx.save();
+    for (let i = 0; i < particleCount; i++) {
+        const angle = (i / particleCount) * Math.PI * 2 + time * 0.5;
+        const particleRadius = outerRadius + Math.sin(time * 2 + i * 0.5) * 10;
+        const px = x + Math.cos(angle) * particleRadius;
+        const py = y + Math.sin(angle) * particleRadius;
+        
+        // Fade particles based on distance from center
+        const distance = Math.sqrt((px - x) ** 2 + (py - y) ** 2);
+        const alpha = Math.max(0, 1 - (distance - radius) / (outerRadius - radius));
+        
+        ctx.globalAlpha = alpha * 0.6;
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 1 + alpha * 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+    
+    // Middle accretion disk - bright swirling ring
+    const diskRadius = radius * 1.5;
+    const diskParticles = 30;
+    
+    ctx.save();
+    for (let i = 0; i < diskParticles; i++) {
+        const angle = (i / diskParticles) * Math.PI * 2 + time * 1.2;
+        const px = x + Math.cos(angle) * diskRadius;
+        const py = y + Math.sin(angle) * diskRadius;
+        
+        const alpha = 0.8 + 0.2 * Math.sin(time * 3 + i * 0.3);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = `rgba(255, 200, 100, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 2 + alpha * 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+    
+    // Inner event horizon - dark core with subtle glow
+    const innerRadius = radius * 0.8;
+    
+    // Outer glow
+    const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, innerRadius * 2);
+    glowGradient.addColorStop(0, 'rgba(100, 0, 150, 0.3)');
+    glowGradient.addColorStop(0.5, 'rgba(50, 0, 100, 0.2)');
+    glowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    
+    ctx.save();
+    ctx.fillStyle = glowGradient;
+    ctx.beginPath();
+    ctx.arc(x, y, innerRadius * 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    
+    // Dark core
+    const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, innerRadius);
+    coreGradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+    coreGradient.addColorStop(0.7, 'rgba(20, 0, 40, 0.9)');
+    coreGradient.addColorStop(1, 'rgba(40, 0, 80, 0.7)');
+    
+    ctx.save();
+    ctx.fillStyle = coreGradient;
+    ctx.beginPath();
+    ctx.arc(x, y, innerRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    
+    // Pulsing center
+    const pulseRadius = radius * 0.3 + Math.sin(time * 4) * radius * 0.1;
+    const pulseGradient = ctx.createRadialGradient(x, y, 0, x, y, pulseRadius);
+    pulseGradient.addColorStop(0, 'rgba(255, 100, 255, 0.8)');
+    pulseGradient.addColorStop(1, 'rgba(255, 100, 255, 0)');
+    
+    ctx.save();
+    ctx.fillStyle = pulseGradient;
+    ctx.beginPath();
+    ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    
+    // Gravitational lensing effect - distorted rings
+    const lensingRings = 3;
+    for (let i = 0; i < lensingRings; i++) {
+        const ringRadius = radius * (1.2 + i * 0.3);
+        const distortion = Math.sin(time * 2 + i) * 5;
+        
+        ctx.save();
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - i * 0.03})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        
+        // Create distorted ellipse
+        for (let j = 0; j <= 360; j += 5) {
+            const angle = (j * Math.PI) / 180;
+            const distortedRadius = ringRadius + distortion * Math.sin(angle * 3);
+            const px = x + Math.cos(angle) * distortedRadius;
+            const py = y + Math.sin(angle) * distortedRadius;
+            
+            if (j === 0) {
+                ctx.moveTo(px, py);
+            } else {
+                ctx.lineTo(px, py);
+            }
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
 }
 
