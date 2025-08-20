@@ -1,14 +1,40 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+
 interface MobileAccessButtonProps {
     setShowHelp: (show: boolean) => void;
 }
 
 export function MobileAccessButton({ setShowHelp }: MobileAccessButtonProps) {
-    if (typeof window === 'undefined' || window.innerWidth > 768) {
+    const [isMobile, setIsMobile] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        // Animate in the button after a short delay
+        const timer = setTimeout(() => setIsVisible(true), 600);
+        
+        return () => {
+            window.removeEventListener('resize', checkMobile);
+            clearTimeout(timer);
+        };
+    }, []);
+
+    if (!isMobile) {
         return null;
     }
 
     return (
-        <div className="fixed bottom-20 right-4 z-40">
+        <div className={`fixed bottom-4 right-4 z-40 transform transition-all duration-500 ease-out ${
+            isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-75'
+        }`}>
             <button
                 onClick={() => {
                     setShowHelp(true);
