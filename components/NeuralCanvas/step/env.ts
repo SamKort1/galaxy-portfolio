@@ -6,7 +6,7 @@ export type Node = {
     clusterId: string; isHub?: boolean; pulse?: number; theta?: number; baseR?: number; omega?: number; phase?: number;
 };
 
-export type Edge = { a:number; b:number; clusterId:string; cross?:boolean };
+export type Edge = { a:number; b:number; clusterId:string; cross?:boolean; originalCross?:boolean; blackholeAffected?:boolean };
 
 export type Cluster = { id:string; name:string; color:string; };
 

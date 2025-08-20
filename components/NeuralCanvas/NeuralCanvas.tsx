@@ -52,20 +52,29 @@ export default function NeuralCanvas({
     const [blackholeY, setBlackholeY] = useState(0);
     const [blackholeRadius, setBlackholeRadius] = useState(50);
     const [blackholeVisualRadius, setBlackholeVisualRadius] = useState(50);
-    const [blackholeStrength] = useState(3000);
+    const [blackholeStrength] = useState(1200);
 
     // Blackhole activation callback
     const activateBlackhole = useCallback(() => {
-        // Position blackhole at random location on screen with responsive margins
-        const responsiveMargin = Math.min(40, size.w * 0.08); // Smaller margin on small screens
-        const margin = Math.max(25, responsiveMargin); // Minimum 25px margin
+        // Position blackhole near the center of the screen
+        const centerX = size.w / 2;
+        const centerY = size.h / 2;
         
-        const randomX = margin + Math.random() * (size.w - 2 * margin);
-        const randomY = margin + Math.random() * (size.h - 2 * margin);
+        // Define a central area (40% of screen dimensions) for blackhole to appear
+        const centralAreaWidth = size.w * 0.4;
+        const centralAreaHeight = size.h * 0.4;
+        
+        // Calculate bounds for the central area
+        const minX = centerX - centralAreaWidth / 2;
+        const minY = centerY - centralAreaHeight / 2;
+        
+        // Generate random position within the central area
+        const randomX = minX + Math.random() * centralAreaWidth;
+        const randomY = minY + Math.random() * centralAreaHeight;
         
         // Make both physics and visual radius responsive to screen size
-        const physicsRadius = Math.max(150, Math.min(400, size.w * 0.15)); // 15% of screen width, min 150, max 400
-        const visualRadius = Math.max(35, Math.min(80, size.w * 0.09)); // 9% of screen width, min 35, max 80
+        const physicsRadius = Math.max(150, Math.min(400, size.w * 0.08)); // 15% of screen width, min 150, max 400
+        const visualRadius = Math.max(35, Math.min(80, size.w * 0.05)); // 5% of screen width, min 35, max 80
         
         setBlackholeX(randomX);
         setBlackholeY(randomY);

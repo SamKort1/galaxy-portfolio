@@ -20,6 +20,8 @@ export type Edge = {
     b: number;
     clusterId: string;
     cross?: boolean;
+    originalCross?: boolean;
+    blackholeAffected?: boolean;
 };
 
 export type Cluster = {

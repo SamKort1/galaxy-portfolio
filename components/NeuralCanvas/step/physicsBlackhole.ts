@@ -3,9 +3,19 @@ import type { StepEnv } from "./env";
 export function physicsBlackhole(env: StepEnv, dt: number) {
     const { graph, blackholeActive, blackholeX, blackholeY, blackholeRadius, blackholeStrength } = env;
     
-    if (!blackholeActive) return;
-    
     const { nodes, edges } = graph.current;
+    
+    // Reset edge cross properties when blackhole is not active
+    if (!blackholeActive) {
+        for (const edge of edges) {
+            // Only reset if it was marked by blackhole (preserve original cross-cluster edges)
+            if (edge.blackholeAffected) {
+                edge.cross = edge.originalCross;
+                edge.blackholeAffected = false;
+            }
+        }
+        return;
+    }
     
     // Apply gravitational force to ALL satellites (not hubs)
     for (const node of nodes) {
@@ -23,11 +33,11 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         const force = (blackholeStrength * 5) / Math.max(1, distance * distance);
         
         // Apply force towards blackhole - controlled pull with velocity capping
-        node.vx += (dx / distance) * force * dt * 90; // Strong but controlled effect
-        node.vy += (dy / distance) * force * dt * 90;
+        node.vx += (dx / distance) * force * dt * 600; // Strong but controlled effect
+        node.vy += (dy / distance) * force * dt * 600;
         
         // Cap velocity to prevent overshooting
-        const maxVelocity = 200;
+        const maxVelocity = 400;
         const currentVelocity = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
         if (currentVelocity > maxVelocity) {
             const scale = maxVelocity / currentVelocity;
@@ -36,7 +46,7 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         }
         
         // Start consuming when close to blackhole
-        if (distance < blackholeRadius * 0.8) { // Slightly larger consumption radius
+        if (distance < blackholeRadius * 0.4) { // Smaller consumption radius - satellites consumed closer to center
             // Gradually reduce node size and alpha
             node.r = Math.max(0, node.r - dt * 12); // Faster consumption
             
@@ -85,8 +95,13 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < blackholeRadius * 3) {
+            // Store original cross state if not already stored
+            if (edge.originalCross === undefined) {
+                edge.originalCross = edge.cross;
+            }
             // Edges get distorted and fade near blackhole
             edge.cross = distance < blackholeRadius; // Mark for special rendering
+            edge.blackholeAffected = true;
         }
     }
 }

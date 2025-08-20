@@ -34,7 +34,9 @@ export function drawExpandedCluster(env: StepEnv) {
             ctx.fillStyle = "rgba(255,255,255,0.05)";
             ctx.fill();
             ctx.fillStyle = "rgba(235,240,255,0.92)";
-            ctx.fillText(text, left + pad, top + h - 6);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, x, top + h / 2);
             ctx.restore();
         };
 
