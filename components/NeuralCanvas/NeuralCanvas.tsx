@@ -171,7 +171,7 @@ export default function NeuralCanvas({
         let raf = 0;
         let last = performance.now();
 
-        // Helper function
+        // Attract function
         const attract = (node: { x: number; y: number; vx: number; vy: number }, target: { x: number; y: number }, strength: number) => {
             const dx = target.x - node.x;
             const dy = target.y - node.y;
@@ -293,7 +293,7 @@ export default function NeuralCanvas({
         };
     }, [secretTheme, isLoading, SECRET_THEMES]);
 
-    // Helper: animated collapse
+    // Animated collapse
     const animateCollapse = useCallback(() => {
         if (!expandedCluster) return;
         const start = performance.now();
@@ -315,11 +315,11 @@ export default function NeuralCanvas({
             setTransform({ sx, sy, tx, ty });
 
             // Animate label fade in (labels appear as we zoom out)
-            const labelFade = Math.min(1, tt * 2); // Labels fade in faster
+            const labelFade = Math.min(1, tt * 2); // Labels fade in
             setLabelFadeAlpha(labelFade);
 
             // Animate expanded content fade out (content disappears as we zoom out)
-            const expandedFade = Math.max(0, 1 - tt * 1.5); // Content fades out faster
+            const expandedFade = Math.max(0, 1 - tt * 1.5); // Content fades out
             setExpandedFadeAlpha(expandedFade);
 
             if (tt < 1) requestAnimationFrame(tick);
@@ -525,11 +525,11 @@ export default function NeuralCanvas({
                 setTransform({ sx, sy, tx, ty });
 
                 // Animate label fade out (labels disappear as we zoom in)
-                const labelFade = Math.max(0, 1 - tt * 1.2); // Labels fade out slightly faster
+                const labelFade = Math.max(0, 1 - tt * 1.2); // Labels fade out
                 setLabelFadeAlpha(labelFade);
 
                 // Animate expanded content fade in (content appears as we zoom in)
-                const expandedFade = Math.min(1, tt * 1.5); // Content fades in faster
+                const expandedFade = Math.min(1, tt * 1.5); // Content fades in
                 setExpandedFadeAlpha(expandedFade);
 
                 if (tt < 1) requestAnimationFrame(tick);

@@ -8,11 +8,11 @@ export type Node = {
     clusterId: string;
     isHub?: boolean;
     pulse?: number;
-    // continuous orbit params for satellites
-    theta?: number; // current angle (rad)
+    // orbit params
+    theta?: number; // angle
     baseR?: number; // base orbit radius
     omega?: number; // angular velocity (rad/s)
-    phase?: number; // radial "breathing" phase
+    phase?: number; // breathing phase
 };
 
 export type Edge = {

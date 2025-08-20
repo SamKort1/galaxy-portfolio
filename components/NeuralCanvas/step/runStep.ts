@@ -26,10 +26,10 @@ export function runStep(env: StepEnv, t: number, last: number) {
     backgroundTint(env);
     applyWorldTransform(env);
     
-    // Apply blackhole physics FIRST so it takes precedence
+    // Apply blackhole physics first
     physicsBlackhole(env, dt);
     
-    // Then apply other physics
+    // Apply other physics
     physicsSatellites(env, dt);
     physicsHubs(env);
     physicsRepulsion(env);
@@ -39,7 +39,7 @@ export function runStep(env: StepEnv, t: number, last: number) {
     drawNodes(env);
     drawExpandedCluster(env);
     
-    // Draw blackhole if active
+    // Draw blackhole
     if (env.blackholeActive) {
         drawBlackhole(env.ctx, env.blackholeX, env.blackholeY, env.blackholeVisualRadius, env.blackholeStrength, env.timeRef.current);
     }

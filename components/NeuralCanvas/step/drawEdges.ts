@@ -4,13 +4,13 @@ export function drawEdges(env: StepEnv, t:number) {
     const { ctx, graph, hoverId, hoverCluster, CALM, clusters, blackholeActive, blackholeX, blackholeY, blackholeRadius, timeRef } = env;
     const { nodes, edges } = graph.current;
 
-    // -------- Draw edges --------
+    // Draw edges
     const ping = (tt: number) => (Math.sin(tt * CALM.edgePulseFreq) + 1) * 0.5;
     const time = t / 1000;
     for (const e of edges) {
         const a = nodes[e.a], b = nodes[e.b];
         
-        // Skip edges if either connected node is consumed (r <= 0)
+        // Skip consumed edges
         if (a.r <= 0 || b.r <= 0) continue;
         
         const isHoverEdge =
@@ -25,7 +25,7 @@ export function drawEdges(env: StepEnv, t:number) {
         const alphaBase = e.cross ? 0.02 : CALM.edgeBaseAlpha;
         let alpha = isHoverEdge || isClusterEdge ? 0.38 : alphaBase + ping(time) * CALM.edgePulseAmp;
 
-        // Blackhole distortion effect
+        // Blackhole distortion
         if (blackholeActive) {
             const midX = (a.x + b.x) / 2;
             const midY = (a.y + b.y) / 2;
@@ -33,18 +33,18 @@ export function drawEdges(env: StepEnv, t:number) {
             const dy = blackholeY - midY;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance < blackholeRadius * 5) { // Larger fade radius
-                // Edges fade much more dramatically near blackhole
+            if (distance < blackholeRadius * 5) { // Fade radius
+                // Edges fade near blackhole
                 const fadeFactor = Math.max(0, 1 - (blackholeRadius * 5 - distance) / (blackholeRadius * 5));
-                alpha *= fadeFactor * 0.3; // Much more dramatic fade
+                alpha *= fadeFactor * 0.3; // Fade effect
                 
-                // Add distortion effect
+                // Add distortion
                 const distortion = Math.sin(timeRef.current * 2) * 3 * fadeFactor;
                 const angle = Math.atan2(dy, dx);
                 const distortedMidX = midX + Math.cos(angle) * distortion;
                 const distortedMidY = midY + Math.sin(angle) * distortion;
                 
-                // Draw distorted edge
+                // Draw edge
                 ctx.beginPath();
                 ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
                 ctx.lineWidth = e.cross ? 0.6 : 1.1;

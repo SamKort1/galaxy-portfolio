@@ -22,7 +22,7 @@ export function drawHubFancy(
     const gg = hovered ? Math.min(255, cg + 35) : cg;
     const bb = hovered ? Math.min(255, cb + 35) : cb;
 
-    // Refined outer aura with reduced intensity
+    // Outer glow
     const aura1 = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
     aura1.addColorStop(0, `rgba(${rr},${gg},${bb},${0.08 + pulse * 0.04})`);
     aura1.addColorStop(0.4, `rgba(${Math.min(255, rr + 15)},${Math.min(255, gg + 15)},${Math.min(255, bb + 15)},${0.04 + pulse * 0.02})`);
@@ -48,7 +48,7 @@ export function drawHubFancy(
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = hovered ? 4 : 2;
 
-    // Ultra-smooth core with advanced gradients
+    // Core with gradients
     const coreOuter = ctx.createRadialGradient(x, y, 0, x, y, r * 1.1);
     coreOuter.addColorStop(0, `rgba(${rr},${gg},${bb},0.98)`);
     coreOuter.addColorStop(0.7, `rgba(${rr},${gg},${bb},0.9)`);
@@ -60,7 +60,7 @@ export function drawHubFancy(
     
     ctx.restore();
 
-    // Inner core with ultra-bright center
+    // Inner core
     const coreInner = ctx.createRadialGradient(x, y, 0, x, y, r * 0.7);
     coreInner.addColorStop(0, `rgba(${Math.min(255, rr + 50)},${Math.min(255, gg + 50)},${Math.min(255, bb + 50)},1)`);
     coreInner.addColorStop(0.5, `rgba(${rr},${gg},${bb},0.95)`);
@@ -70,7 +70,7 @@ export function drawHubFancy(
     ctx.arc(x, y, r * 0.7, 0, Math.PI * 2);
     ctx.fill();
 
-    // Ultra-bright center highlight with glow
+    // Center highlight
     const highlight = ctx.createRadialGradient(x, y, 0, x, y, r * 0.35);
     highlight.addColorStop(0, `rgba(255,255,255,0.6)`);
     highlight.addColorStop(0.7, `rgba(255,255,255,0.2)`);
@@ -80,25 +80,25 @@ export function drawHubFancy(
     ctx.arc(x, y, r * 0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    // Ultra-cool inner highlight ring with glow
+    // Inner highlight ring
     ctx.beginPath();
     ctx.strokeStyle = `rgba(${rr},${gg},${bb},0.8)`;
     ctx.lineWidth = 2;
     ctx.arc(x, y, r + 1.5, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Outer definition ring
+    // Outer ring
     ctx.beginPath();
     ctx.strokeStyle = `rgba(${rr},${gg},${bb},0.3)`;
     ctx.lineWidth = 1;
     ctx.arc(x, y, r + 3, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Refined tech spokes with reduced intensity
+    // Tech spokes
     ctx.save();
     ctx.globalAlpha = 0.15;
     ctx.lineWidth = 1;
-    const spokes = 8; // Fewer spokes for cleaner look
+    const spokes = 8; // Spoke count
     for (let i = 0; i < spokes; i++) {
         const a = (i / spokes) * Math.PI * 2 + time * 0.3;
         const spokeAlpha = 0.5 + 0.3 * Math.sin(time * 2 + i * 0.3);
@@ -110,7 +110,7 @@ export function drawHubFancy(
     }
     ctx.restore();
 
-    // Refined energy rings with subtle animation
+    // Energy rings
     const ringCount = 2;
     for (let i = 0; i < ringCount; i++) {
         const ringRadius = r + 8 + i * 6;
@@ -124,7 +124,7 @@ export function drawHubFancy(
         ctx.stroke();
     }
 
-    // Subtle particle effects around the hub
+    // Particle effects
     const particleCount = 4;
     for (let i = 0; i < particleCount; i++) {
         const angle = (i / particleCount) * Math.PI * 2 + time * 0.8;
@@ -174,7 +174,7 @@ export function drawOrbitalNode(
         }
     }
 
-    // Refined outer glow with reduced intensity
+    // Outer glow
     const grad1 = ctx.createRadialGradient(x, y, 0, x, y, radius * 3);
     grad1.addColorStop(0, `rgba(${cr},${cg},${cb},0.2)`);
     grad1.addColorStop(0.5, `rgba(${cr},${cg},${cb},0.1)`);
@@ -193,7 +193,7 @@ export function drawOrbitalNode(
     ctx.arc(x, y, radius * 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Enhanced core with better gradients
+    // Core with gradients
     const core = ctx.createRadialGradient(x, y, 0, x, y, radius);
     core.addColorStop(0, `rgba(${Math.min(255, cr + 30)},${Math.min(255, cg + 30)},${Math.min(255, cb + 30)},0.95)`);
     core.addColorStop(0.7, `rgba(${cr},${cg},${cb},0.85)`);
@@ -212,7 +212,7 @@ export function drawOrbitalNode(
         ctx.stroke();
     }
 
-    // Enhanced inner glow
+    // Inner glow
     if (opts?.innerGlow) {
         const ig = ctx.createRadialGradient(x, y, 0, x, y, radius);
         ig.addColorStop(0, `rgba(255,255,255,0.6)`);
@@ -248,7 +248,7 @@ export function drawOrbitalNode(
     }
 }
 
-/** small rounded-rect helper */
+/** Rounded-rect function */
 export function roundRectPath(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -293,7 +293,7 @@ export function drawSkillChip(
     const pulse = 0.25 + 0.15 * Math.sin(time * 2);
     const alpha = hover ? 0.9 : 0.7;
 
-    // subtle glow
+    // Glow
     const grad = ctx.createRadialGradient(x, y, 0, x, y, w * 0.6);
     grad.addColorStop(0, `rgba(${r},${g},${b},${0.15 + pulse * 0.05})`);
     grad.addColorStop(0.8, `rgba(${r},${g},${b},0.05)`);
@@ -382,7 +382,7 @@ export function drawProjectGem(
     
     ctx.restore();
 
-    // inner glow
+    // Inner glow
     if (innerGlow) {
         const ig = ctx.createRadialGradient(x, y, 0, x, y, r);
         ig.addColorStop(0, `rgba(255,255,255,0.4)`);
@@ -439,7 +439,7 @@ export function drawHubLabel(
     const left = x - w / 2;
     const top = y - h - 60;
 
-    // Enhanced gradient with better depth
+    // Gradient with depth
     const grad = ctx.createLinearGradient(left, top, left, top + h);
     grad.addColorStop(0, `rgba(${r},${g},${b},${hovered ? 0.45 : 0.35})`);
     grad.addColorStop(0.5, `rgba(${r},${g},${b},${hovered ? 0.25 : 0.2})`);
@@ -531,7 +531,7 @@ export function drawBlackhole(
     }
     ctx.restore();
     
-    // Inner event horizon - dark core with subtle glow
+    // Inner event horizon - core with glow
     const innerRadius = radius * 0.8;
     
     // Outer glow

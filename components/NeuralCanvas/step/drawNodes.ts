@@ -10,7 +10,7 @@ export function drawNodes(env: StepEnv) {
         const baseAlpha = n.isHub ? 0.9 : 0.8;
         const alpha = isHover ? 1 : baseAlpha;
 
-        // resolve cluster color hex (for hubs & sats)
+        // resolve cluster color
         let clusterHex = "#c8c8dc"; // fallback neutral
         const cluster = clusters.find((c) => c.id === n.clusterId);
         if (cluster) clusterHex = cluster.color;
@@ -40,10 +40,10 @@ export function drawNodes(env: StepEnv) {
             drawHubLabel(ctx, n.x, n.y, label, { r, g, b }, hoverCluster === n.clusterId);
             ctx.restore();
         } else {
-            // Skip drawing satellites that have been consumed by blackhole
+            // Skip consumed satellites
             if (n.r <= 0) continue;
             
-            // Satellite: subtle glow + twinkle
+            // Satellite: glow + twinkle
             ctx.save();
             ctx.globalAlpha = alpha;
             drawOrbitalNode(ctx, n.x, n.y, Math.max(2, n.r), clusterHex, timeRef.current, {

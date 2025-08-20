@@ -4,17 +4,17 @@ export function physicsSatellites(env: StepEnv, dt: number) {
     const { graph, anchors, CALM, prefersReducedMotion, timeRef, blackholeActive } = env;
     const { nodes } = graph.current;
 
-    // If blackhole is active, don't apply orbital physics at all
+    // Skip orbital physics during blackhole
     if (blackholeActive) return;
 
-    // -------- Physics setup --------
+    // Physics setup
     const awPhase = timeRef.current * CALM.anchorWobbleFreq;
     const wobbleXY = (id: string) => ({
         x: CALM.anchorWobbleAmp * Math.cos(awPhase + (id.charCodeAt(0) % 7)),
         y: CALM.anchorWobbleAmp * Math.sin(awPhase + (id.charCodeAt(1) % 7)),
     });
 
-    // Satellites: deterministic calm orbits
+    // Satellites: calm orbits
     for (const n of nodes) {
         if (!n.isHub) {
             const baseAnchor = anchors.current[n.clusterId];
@@ -32,7 +32,7 @@ export function physicsSatellites(env: StepEnv, dt: number) {
             n.x = anchor.x + Math.cos(n.theta) * radius;
             n.y = anchor.y + Math.sin(n.theta) * radius;
 
-            // Reset velocities
+            // Reset velocity
             n.vx = 0;
             n.vy = 0;
         }

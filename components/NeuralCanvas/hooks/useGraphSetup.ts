@@ -33,12 +33,12 @@ export function useGraphSetup(
         const edges: Edge[] = [];
         let nid = 0;
 
-        // Calculate responsive sizes based on screen dimensions
+        // Calculate responsive sizes
         const screenSize = Math.min(w, h);
         const hubRadius = Math.max(20, Math.min(45, screenSize * 0.04)); // 20-45px based on screen size (increased)
         const satelliteRadiusMin = Math.max(1.5, Math.min(5, screenSize * 0.003)); // 1.5-5px (increased)
         const satelliteRadiusMax = Math.max(6, Math.min(18, screenSize * 0.012)); // 6-18px (increased)
-        // Larger orbit radii for more screen coverage
+        // Orbit radii for screen coverage
         const orbitRadiusMin = Math.max(40, Math.min(100, screenSize * 0.08)); // 40-100px (increased)
         const orbitRadiusMax = Math.max(80, Math.min(150, screenSize * 0.12)); // 80-150px (increased)
 
@@ -54,7 +54,7 @@ export function useGraphSetup(
                 clusterId: id,
                 isHub: true,
             });
-            // satellites - responsive to screen size
+            // satellites
             const baseSatellites = 12;
             const responsiveMultiplier = Math.max(0.3, Math.min(1.0, screenSize / 1000)); // Scale from 30% to 100% based on screen size
             const satellites = Math.round(baseSatellites * satelliteMultiplier * responsiveMultiplier);
@@ -83,7 +83,7 @@ export function useGraphSetup(
 
         // intra-cluster edges
         const clusterNodes = (cid: string) => nodes.filter((n) => n.clusterId === cid);
-        // Responsive edge distance based on orbit size - increased for more connections
+        // Edge distance
         const edgeDistance = Math.max(120, Math.min(200, screenSize * 0.15)); // 120-200px based on screen size (increased)
         for (const c of clusters) {
             const list = clusterNodes(c.id);
@@ -94,20 +94,20 @@ export function useGraphSetup(
                     const dx = a.x - b.x,
                         dy = a.y - b.y;
                     const d2 = dx * dx + dy * dy;
-                    // Responsive edge probability based on screen size
+                    // Edge probability
                     const responsiveEdgeProb = Math.max(0.03, Math.min(0.08, 0.08 * (screenSize / 1000))); // Scale from 3% to 8%
                     if (d2 < edgeDistance * edgeDistance && Math.random() < responsiveEdgeProb * edgeMultiplier) edges.push({ a: a.id, b: b.id, clusterId: c.id });
                 }
             }
         }
 
-        // sparse cross edges - responsive to screen size
+        // cross edges
         const ids = clusters.map((c) => c.id);
         for (let i = 0; i < ids.length; i++) {
             for (let j = i + 1; j < ids.length; j++) {
                 const A = clusterNodes(ids[i]).filter((n) => !n.isHub);
                 const B = clusterNodes(ids[j]).filter((n) => !n.isHub);
-                // Responsive cross edge count
+                // Cross edge count
                 const baseCrossEdges = 5;
                 const responsiveCrossMultiplier = Math.max(0.4, Math.min(1.0, screenSize / 1200)); // Scale from 40% to 100%
                 const crossEdgeCount = Math.round(baseCrossEdges * edgeMultiplier * responsiveCrossMultiplier);

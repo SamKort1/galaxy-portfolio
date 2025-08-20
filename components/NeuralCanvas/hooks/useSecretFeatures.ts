@@ -15,17 +15,17 @@ export function useSecretFeatures(onBlackholeActivate?: () => void) {
     const devModeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const fpsRef = useRef({ lastTime: 0, frameCount: 0, fps: 0 });
 
-    // Secret features and keyboard handlers
+    // Secret features
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            // Secret command typing
+            // Command typing
             if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
                 setTypedKeys(prev => {
                     const newKeys = prev + e.key.toLowerCase();
-                    // Keep only last 20 characters
+                    // Keep last 20 characters
                     const trimmed = newKeys.slice(-20);
                     
-                    // Check for secret commands
+                    // Check commands
                     if (trimmed.includes("help")) {
                         setShowHelp(true);
                         setTimeout(() => setShowHelp(false), 5000);
@@ -62,7 +62,7 @@ export function useSecretFeatures(onBlackholeActivate?: () => void) {
                         return "";
                     }
                     if (trimmed.includes("dev")) {
-                        // Clear any existing timeout
+                        // Clear timeout
                         if (devModeTimeoutRef.current) {
                             clearTimeout(devModeTimeoutRef.current);
                         }
@@ -79,7 +79,7 @@ export function useSecretFeatures(onBlackholeActivate?: () => void) {
             }
         };
         
-        // Listen for custom event from footer (mobile help access)
+        // Listen for mobile help event
         const onShowHelpModal = () => {
             console.log('NeuralCanvas received showHelpModal event');
             setShowHelp(true);

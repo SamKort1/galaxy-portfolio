@@ -25,7 +25,7 @@ export function drawPillLabelAlpha(
     // pill bg
     ctx.beginPath();
     roundRectPath(ctx, left, top, w, h, rx);
-    ctx.fillStyle = "rgba(16,18,28,0.45)"; // glassy
+    ctx.fillStyle = "rgba(16,18,28,0.45)"; // glass
     ctx.fill();
 
     // text
@@ -36,13 +36,13 @@ export function drawPillLabelAlpha(
 
 export function clipText(ctx: CanvasRenderingContext2D, text: string, max: number) {
     if (ctx.measureText(text).width <= max) return text;
-    // quick ellipsis clip
+    // Ellipsis clip
     let t = text;
     while (t.length > 1 && ctx.measureText(t + "…").width > max) t = t.slice(0, -1);
     return t + "…";
 }
 
-/** small rounded-rect helper */
+/** Rounded-rect function */
 export function roundRectPath(
     ctx: CanvasRenderingContext2D,
     x: number,

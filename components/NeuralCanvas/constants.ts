@@ -16,7 +16,7 @@ export const CALM = {
     unzoomDuration: 600,
 };
 
-// Secret theme configurations
+// Secret themes
 export const SECRET_THEMES = {
     matrix: {
         name: "Matrix",

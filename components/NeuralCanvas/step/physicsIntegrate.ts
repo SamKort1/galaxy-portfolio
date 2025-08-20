@@ -5,24 +5,24 @@ export function physicsIntegrate(env: StepEnv, dt: number) {
     const { nodes } = graph.current;
 
     for (const n of nodes) {
-        // Apply physics to hubs always, and to satellites when blackhole is active
+        // Apply physics to hubs and satellites during blackhole
         if (!n.isHub && !blackholeActive) continue;
         
-        // Apply damping - use less damping for satellites under blackhole influence
+        // Apply damping with reduced rate for satellites
         if (!n.isHub && blackholeActive) {
-            n.vx *= 0.95; // Less damping for satellites during blackhole
+            n.vx *= 0.95; // Reduced damping for satellites during blackhole
             n.vy *= 0.95;
         } else {
             n.vx *= CALM.damping;
             n.vy *= CALM.damping;
         }
         
-        // For satellites under blackhole influence, use direct velocity integration
+                    // Direct velocity integration for satellites
         if (!n.isHub && blackholeActive) {
             n.x += n.vx * dt;
             n.y += n.vy * dt;
         } else {
-            // For hubs, use the original integration method
+            // Original integration for hubs
             n.x += n.vx / (1 / dt);
             n.y += n.vy / (1 / dt);
         }

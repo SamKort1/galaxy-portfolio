@@ -5,10 +5,10 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
     
     const { nodes, edges } = graph.current;
     
-    // Reset edge cross properties when blackhole is not active
+    // Reset edge properties when blackhole inactive
     if (!blackholeActive) {
         for (const edge of edges) {
-            // Only reset if it was marked by blackhole (preserve original cross-cluster edges)
+            // Reset if blackhole-affected (preserve original edges)
             if (edge.blackholeAffected) {
                 edge.cross = edge.originalCross;
                 edge.blackholeAffected = false;
@@ -17,7 +17,7 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         return;
     }
     
-    // Apply gravitational force to ALL satellites (not hubs)
+    // Apply gravitational force to satellites (not hubs)
     for (const node of nodes) {
         if (node.isHub) continue; // Don't affect hubs
         
@@ -28,15 +28,15 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         // Ensure we don't divide by zero
         if (distance < 1) continue;
         
-        // Affect ALL satellites regardless of distance (infinite range)
-        // Calculate gravitational force (inverse square law) - make it strong but controlled
+        // Affect all satellites (infinite range)
+        // Calculate gravitational force (inverse square law)
         const force = (blackholeStrength * 5) / Math.max(1, distance * distance);
         
-        // Apply force towards blackhole - controlled pull with velocity capping
-        node.vx += (dx / distance) * force * dt * 600; // Strong but controlled effect
+        // Apply force towards blackhole
+        node.vx += (dx / distance) * force * dt * 600; // Velocity effect
         node.vy += (dy / distance) * force * dt * 600;
         
-        // Cap velocity to prevent overshooting
+        // Cap velocity
         const maxVelocity = 400;
         const currentVelocity = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
         if (currentVelocity > maxVelocity) {
@@ -45,16 +45,16 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
             node.vy *= scale;
         }
         
-        // Start consuming when close to blackhole
-        if (distance < blackholeRadius * 0.4) { // Smaller consumption radius - satellites consumed closer to center
-            // Gradually reduce node size and alpha
-            node.r = Math.max(0, node.r - dt * 12); // Faster consumption
+        // Consume when close
+        if (distance < blackholeRadius * 0.4) {
+            // Reduce node size and alpha
+            node.r = Math.max(0, node.r - dt * 12);
             
-            // Add particle effects for consumption
-            if (Math.random() < 0.4) { // Moderate particle spawn rate
-                // Create consumption particles
+
+            if (Math.random() < 0.4) {
+                // Create particles
                 const angle = Math.random() * Math.PI * 2;
-                const speed = 3 + Math.random() * 5; // Moderate particle speed
+                const speed = 3 + Math.random() * 5; // Particle speed
                 const particle = {
                     x: node.x,
                     y: node.y,
@@ -62,25 +62,25 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
                     vy: Math.sin(angle) * speed,
                     life: 0,
                     maxLife: 1 + Math.random(),
-                    r: 1 + Math.random() * 4, // Moderate particle size
+                    r: 1 + Math.random() * 4, // Particle size
                     hue: Math.random() * 60 + 200 // Blue to purple range
                 };
                 
-                // Add to shooting stars array for rendering
+                // Add to shooting stars
                 env.shootingRef.current.push(particle);
             }
             
-            // Mark node for removal when fully consumed
+            // Mark for removal
             if (node.r <= 0) {
                 node.r = 0;
-                // Hide the node completely
+                // Hide node
                 node.x = -1000; // Move far off screen
                 node.y = -1000;
             }
         }
     }
     
-    // Gradually reduce edge visibility near blackhole
+    // Reduce edge visibility
     for (const edge of edges) {
         const nodeA = nodes[edge.a];
         const nodeB = nodes[edge.b];
@@ -95,11 +95,11 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < blackholeRadius * 3) {
-            // Store original cross state if not already stored
+            // Store original state
             if (edge.originalCross === undefined) {
                 edge.originalCross = edge.cross;
             }
-            // Edges get distorted and fade near blackhole
+            // Distort and fade edges
             edge.cross = distance < blackholeRadius; // Mark for special rendering
             edge.blackholeAffected = true;
         }

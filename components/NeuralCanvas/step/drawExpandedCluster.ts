@@ -8,10 +8,10 @@ export function drawExpandedCluster(env: StepEnv) {
         roundedRectPath, expandedFadeAlpha,
     } = env;
 
-    // -------- Satellites for expanded cluster --------
+    // Satellites for expanded cluster
     projectHit.current = [];
     if (expandedCluster) {
-        // Apply fade alpha to all expanded content
+        // Apply fade to expanded content
         ctx.save();
         ctx.globalAlpha = expandedFadeAlpha;
 
@@ -44,7 +44,7 @@ export function drawExpandedCluster(env: StepEnv) {
         if (expandedCluster !== "about" && expandedCluster !== "contact") {
             const skillList = skills[expandedCluster as keyof typeof skills];
             if (skillList && skillList.length) {
-                // Responsive skill orbit radius based on screen size
+                // Skill orbit radius
                 const screenSize = Math.min(env.size.w, env.size.h);
                 const skillBase = Math.max(50, Math.min(100, screenSize * 0.15)); // 50-100px based on screen size (increased from 30-60px)
                 const skillOrbit = skillBase + Math.sin(timeRef.current * 0.5) * 4;
@@ -76,7 +76,7 @@ export function drawExpandedCluster(env: StepEnv) {
             const key = expandedCluster as Exclude<typeof expandedCluster, "about" | "contact">;
             const projectList = projects.filter((p) => p.cluster === key);
 
-            // Responsive project orbit radius based on screen size
+            // Project orbit radius
             const screenSize = Math.min(env.size.w, env.size.h);
             const projBase = Math.max(80, Math.min(180, screenSize * 0.25)); // 120-220px based on screen size (increased from 80-170px)
             const projOrbit = projBase + Math.sin(timeRef.current * 0.7) * 3;
@@ -94,14 +94,14 @@ export function drawExpandedCluster(env: StepEnv) {
                 const px = hub.x + Math.cos(angle) * projOrbit;
                 const py = hub.y + Math.sin(angle) * projOrbit;
 
-                // Gem-style node with inner glow + flare
+                // Gem node with inner glow + flare
                 const pr = 12;
                 drawProjectGem(ctx, px, py, pr, { r, g, b: bcol }, {
                     innerGlow: true,
                     flare: true,
                     outline: true,
                     time: timeRef.current,
-                    // subtle attention ring only on first view:
+                    // Attention ring on first view:
                     ringOnFirstView: !visited.current.has(p.id),
                 });
 
@@ -120,7 +120,7 @@ export function drawExpandedCluster(env: StepEnv) {
                 { id: "about:contact", label: "Contact", icon: "📧" }
             ];
 
-            // Responsive about orbit radius based on screen size
+            // About orbit radius
             const screenSize = Math.min(env.size.w, env.size.h);
             const orbit = Math.max(120, Math.min(180, screenSize * 0.2)); // 100-180px based on screen size (increased from 70-130px)
             const speed = env.prefersReducedMotion ? 0.06 : 0.25;
@@ -137,7 +137,7 @@ export function drawExpandedCluster(env: StepEnv) {
                 const x = hub.x + Math.cos(angle) * orbit;
                 const y = hub.y + Math.sin(angle) * orbit;
 
-                // Gem-style node with inner glow + flare
+                // Gem node with inner glow + flare
                 const pr = 12;
                 drawProjectGem(ctx, x, y, pr, { r, g, b: bcol }, {
                     innerGlow: true,
@@ -151,24 +151,24 @@ export function drawExpandedCluster(env: StepEnv) {
                 projectHit.current.push({ id: element.id, x, y, r: pr + 6 });
             });
 
-            // Add combined facts as orbiting elements (cycle through 2 at a time)
+            // Add facts as orbiting elements
             if ((env.aboutFacts && env.aboutFacts.length > 0) || (env.funFacts && env.funFacts.length > 0)) {
-                // Combined orbit for all facts
+                // Combined orbit
                 const factOrbit = Math.max(50, Math.min(100, screenSize * 0.15));
                 const factSpeed = env.prefersReducedMotion ? 0.05 : 0.18;
 
-                // orbit guide for facts
+                // Orbit guide
                 ctx.beginPath();
                 ctx.strokeStyle = `rgba(${r},${g},${bcol},0.12)`;
                 ctx.lineWidth = 1;
                 ctx.arc(hub.x, hub.y, factOrbit, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // Combine about facts and fun facts into one array
+                // Combine facts
                 const allFacts = [...(env.aboutFacts || []), ...(env.funFacts || [])];
 
                 if (allFacts.length > 0) {
-                    // Cycle through facts 2 at a time
+                    // Cycle facts
                     const cycleSpeed = env.prefersReducedMotion ? 0.05 : 0.2;
                     const cycleTime = timeRef.current * cycleSpeed;
                     const totalFacts = allFacts.length;
@@ -184,7 +184,7 @@ export function drawExpandedCluster(env: StepEnv) {
                             const x = hub.x + Math.cos(angle) * factOrbit;
                             const y = hub.y + Math.sin(angle) * factOrbit;
 
-                            // Pill-style chip for facts (like skills)
+                            // Pill chip for facts
                             drawSkillChip(ctx, x, y, `${fact}`, {
                                 r,
                                 g,
@@ -194,7 +194,7 @@ export function drawExpandedCluster(env: StepEnv) {
                                 padY: 22
                             });
 
-                            // hit region for facts - determine if it's an about fact or fun fact
+                            // Hit region for facts
                             const isAboutFact = factIndex < (env.aboutFacts?.length || 0);
                             const originalIndex = isAboutFact ? factIndex : factIndex - (env.aboutFacts?.length || 0);
                             const factId = isAboutFact ? `aboutfact:${originalIndex}` : `funfact:${originalIndex}`;
@@ -226,7 +226,7 @@ export function drawExpandedCluster(env: StepEnv) {
                     time: timeRef.current,
                 });
 
-                // label chip (same visual as skills/about)
+                // Label chip (visual as skills/about)
                 drawSkillChip(ctx, x, y - 22, link.label, {
                     r,
                     g,

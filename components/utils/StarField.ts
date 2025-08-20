@@ -2,9 +2,9 @@ export type BackgroundStar = {
     x: number;
     y: number;
     r: number;     // radius
-    a: number;     // base alpha
+    a: number;     // alpha
     amp: number;   // twinkle amplitude
-    freq: number;  // twinkle speed
+    freq: number;  // twinkle frequency
     phase: number;
 };
 
@@ -42,7 +42,7 @@ export function drawBackgroundStarfield(
             1 + s.amp * Math.sin(time * s.freq * 2 * Math.PI + s.phase);
         const innerA = s.a * twinkle;
 
-        // glow
+        // Glow
         const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4);
         grad.addColorStop(0, `rgba(235,240,255,${innerA})`);
         grad.addColorStop(1, `rgba(235,240,255,0)`);
@@ -51,7 +51,7 @@ export function drawBackgroundStarfield(
         ctx.arc(s.x, s.y, s.r * 4, 0, Math.PI * 2);
         ctx.fill();
 
-        // core
+        // center
         ctx.beginPath();
         ctx.fillStyle = `rgba(255,255,255,${Math.min(1, innerA + 0.2)})`;
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);

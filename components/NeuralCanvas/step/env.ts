@@ -11,7 +11,7 @@ export type Edge = { a:number; b:number; clusterId:string; cross?:boolean; origi
 export type Cluster = { id:string; name:string; color:string; };
 
 export type StepEnv = {
-    // timing
+    // time
     timeRef: MutableRefObject<number>;
     prefersReducedMotion: boolean;
 
@@ -25,17 +25,17 @@ export type StepEnv = {
     graph: MutableRefObject<{ nodes: Node[]; edges: Edge[] }>;
     anchors: MutableRefObject<Record<string, { x:number; y:number }>>;
 
-    // UI state
+    // UI
     transform: { sx:number; sy:number; tx:number; ty:number };
     expandedCluster: string | null;
     hoverId: number | null;
     hoverCluster: string | null;
 
-    // Animation state
+    // Animation
     labelFadeAlpha: number;
     expandedFadeAlpha: number;
 
-    // Blackhole state
+    // Blackhole
     blackholeActive: boolean;
     blackholeX: number;
     blackholeY: number;
@@ -62,7 +62,7 @@ export type StepEnv = {
         unzoomDuration: number;
     };
 
-    // shooting stars
+    // particles
     SHOOTING_COUNT: number;
     shootingRef: MutableRefObject<{ x:number; y:number; vx:number; vy:number; life:number; maxLife:number; r:number; hue:number }[]>;
 
@@ -78,7 +78,7 @@ export type StepEnv = {
     visited: MutableRefObject<Set<string>>;
     projectHit: MutableRefObject<{ id:string; x:number; y:number; r:number }[]>;
 
-    // helpers from the component
+    // Functions
     attract: (node: Node, target: {x:number;y:number}, strength:number) => void;
     roundedRectPath: (ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number)=>void;
     drawPillLabelAlpha: (ctx:CanvasRenderingContext2D,x:number,y:number,text:string,maxWidth?:number,alpha?:number,pad?:number)=>void;

@@ -23,7 +23,7 @@ export function updateShootingStars(env: StepEnv, dt: number) {
         ctx.arc(s.x, s.y, 2.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // short glowing trail
+        // Glowing trail
         const grad = ctx.createLinearGradient(
             s.x, s.y,
             s.x - s.vx * 0.06, s.y - s.vy * 0.06

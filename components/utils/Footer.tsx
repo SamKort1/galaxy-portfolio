@@ -28,7 +28,7 @@ export default function Footer() {
     const handleMenuToggle = () => {
         if (!showMenu) {
             setShowMenu(true);
-            // Small delay to ensure the menu is rendered before animating
+            // Delay to ensure menu is rendered before animating
             setTimeout(() => setIsAnimating(true), 10);
         } else {
             setIsAnimating(false);

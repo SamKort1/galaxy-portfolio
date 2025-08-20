@@ -3,7 +3,7 @@ import type { StepEnv } from "./env";
 export function backgroundTint(env: StepEnv) {
     const { expandedCluster, clusters, ctx, size } = env;
 
-    // -------- 2) Background tint (now safe; no compensation math needed) --------
+    // Background tint
     if (expandedCluster) {
         const c = clusters.find((c) => c.id === expandedCluster)!.color;
         const r = parseInt(c.slice(1, 3), 16),

@@ -59,7 +59,7 @@ export default function CometOverlay({
             });
         }
 
-        // small screen shake near end
+        // Screen shake near end
         const shake = (q: number) => {
             const amp = 6 * q;
             return { x: (Math.random() - 0.5) * amp, y: (Math.random() - 0.5) * amp };
@@ -91,7 +91,7 @@ export default function CometOverlay({
             ctx.scale(DPR, DPR);
             ctx.clearRect(0, 0, canvas.width / DPR, canvas.height / DPR);
 
-            // trailing glow
+            // Trailing glow
             const grd = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 180);
             grd.addColorStop(0, `rgba(${r},${g},${b},0.18)`);
             grd.addColorStop(1, "rgba(0,0,0,0)");
