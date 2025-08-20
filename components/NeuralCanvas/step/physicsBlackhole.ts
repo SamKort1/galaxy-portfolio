@@ -86,7 +86,6 @@ export function physicsBlackhole(env: StepEnv, dt: number) {
         
         if (distance < blackholeRadius * 3) {
             // Edges get distorted and fade near blackhole
-            const distortion = Math.sin(env.timeRef.current * 2) * 5;
             edge.cross = distance < blackholeRadius; // Mark for special rendering
         }
     }

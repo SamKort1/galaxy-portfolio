@@ -97,7 +97,7 @@ export function useSecretFeatures(onBlackholeActivate?: () => void) {
                 clearTimeout(devModeTimeoutRef.current);
             }
         };
-    }, []);
+    }, [onBlackholeActivate]);
 
     // Handle dev mode controls separately
     useEffect(() => {

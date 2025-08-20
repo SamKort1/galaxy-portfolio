@@ -2,7 +2,7 @@ import type { StepEnv } from "./env";
 import {drawHubFancy, drawHubLabel, drawOrbitalNode} from "./drawHelpers";
 
 export function drawNodes(env: StepEnv) {
-    const { ctx, graph, hoverId, hoverCluster, clusters, timeRef, transform, labelFadeAlpha } = env;
+    const { ctx, graph, hoverId, hoverCluster, clusters, timeRef, labelFadeAlpha } = env;
     const { nodes } = graph.current;
 
     for (const n of nodes) {

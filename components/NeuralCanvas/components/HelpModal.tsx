@@ -131,7 +131,7 @@ export function HelpModal({
                                     <p className="text-sm text-gray-200/90"><strong>Use the Back button</strong> or click outside to collapse expanded clusters.</p>
                                 </div>
                                 <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                                    <p className="text-sm text-gray-200/90"><strong>Try the secret themes</strong> by typing "matrix", "cyberpunk", or "retro" for different visual styles.</p>
+                                    <p className="text-sm text-gray-200/90"><strong>Try the secret themes</strong> by typing &quot;matrix&quot;, &quot;cyberpunk&quot;, or &quot;retro&quot; for different visual styles.</p>
                                 </div>
                             </div>
                         </div>
@@ -142,7 +142,7 @@ export function HelpModal({
                                 <h3 className="text-sm font-semibold text-white/90 mb-3">📱 Mobile Users</h3>
                                 <div className="space-y-3">
                                     <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                                        <p className="text-sm text-gray-200/90"><strong>Tap "Discover secrets"</strong> in the footer to open this help modal.</p>
+                                        <p className="text-sm text-gray-200/90"><strong>Tap &quot;Discover secrets&quot;</strong> in the footer to open this help modal.</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-white/5 border border-white/10">
                                         <p className="text-sm text-gray-200/90"><strong>Use the command input below</strong> to type secret commands on mobile.</p>

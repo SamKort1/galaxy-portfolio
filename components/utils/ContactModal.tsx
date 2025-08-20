@@ -55,7 +55,7 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
                         </div>
                         <div className="min-w-0 flex-1">
                             <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">Send a Message</h2>
-                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">Let's build something amazing together</p>
+                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">Let&apos;s build something amazing together</p>
                         </div>
                     </div>
                     

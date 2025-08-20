@@ -52,7 +52,7 @@ export default function NeuralCanvas({
     const [blackholeY, setBlackholeY] = useState(0);
     const [blackholeRadius, setBlackholeRadius] = useState(50);
     const [blackholeVisualRadius, setBlackholeVisualRadius] = useState(50);
-    const [blackholeStrength, setBlackholeStrength] = useState(3000);
+    const [blackholeStrength] = useState(3000);
 
     // Blackhole activation callback
     const activateBlackhole = useCallback(() => {
@@ -260,7 +260,7 @@ export default function NeuralCanvas({
 
         raf = requestAnimationFrame(step);
         return () => cancelAnimationFrame(raf);
-    }, [size.w, size.h, size, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme, SECRET_THEMES, anchors, graph, setFps, fpsRef, labelFadeAlpha, expandedFadeAlpha, blackholeActive, blackholeX, blackholeY, blackholeRadius, blackholeStrength]);
+    }, [size.w, size.h, size, transform, hoverId, hoverCluster, clusters, projects, expandedCluster, aboutFacts, funFacts, contactLinks, secretTheme, SECRET_THEMES, anchors, graph, setFps, fpsRef, labelFadeAlpha, expandedFadeAlpha, blackholeActive, blackholeX, blackholeY, blackholeRadius, blackholeStrength, blackholeVisualRadius]);
 
     // Apply secret theme background
     useEffect(() => {
