@@ -491,7 +491,7 @@ export function drawBlackhole(
     
     // Outer event horizon - swirling particles
     const particleCount = 50;
-    const outerRadius = radius * 3;
+    const outerRadius = radius * 2;
     
     ctx.save();
     for (let i = 0; i < particleCount; i++) {

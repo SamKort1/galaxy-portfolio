@@ -40,6 +40,7 @@ export type StepEnv = {
     blackholeX: number;
     blackholeY: number;
     blackholeRadius: number;
+    blackholeVisualRadius: number;
     blackholeStrength: number;
 
     // constants

@@ -50,18 +50,27 @@ export default function NeuralCanvas({
     const [blackholeActive, setBlackholeActive] = useState(false);
     const [blackholeX, setBlackholeX] = useState(0);
     const [blackholeY, setBlackholeY] = useState(0);
-    const [blackholeRadius, setBlackholeRadius] = useState(100);
-    const [blackholeStrength, setBlackholeStrength] = useState(5000);
+    const [blackholeRadius, setBlackholeRadius] = useState(50);
+    const [blackholeVisualRadius, setBlackholeVisualRadius] = useState(50);
+    const [blackholeStrength, setBlackholeStrength] = useState(3000);
 
     // Blackhole activation callback
     const activateBlackhole = useCallback(() => {
-        // Position blackhole at random location on screen
-        const margin = 100; // Keep some margin from edges
+        // Position blackhole at random location on screen with responsive margins
+        const responsiveMargin = Math.min(40, size.w * 0.08); // Smaller margin on small screens
+        const margin = Math.max(25, responsiveMargin); // Minimum 25px margin
+        
         const randomX = margin + Math.random() * (size.w - 2 * margin);
         const randomY = margin + Math.random() * (size.h - 2 * margin);
         
+        // Make both physics and visual radius responsive to screen size
+        const physicsRadius = Math.max(150, Math.min(400, size.w * 0.15)); // 15% of screen width, min 150, max 400
+        const visualRadius = Math.max(35, Math.min(80, size.w * 0.09)); // 9% of screen width, min 35, max 80
+        
         setBlackholeX(randomX);
         setBlackholeY(randomY);
+        setBlackholeRadius(physicsRadius); // For physics calculations - now responsive
+        setBlackholeVisualRadius(visualRadius); // For visual rendering
         setBlackholeActive(true);
         
         // Deactivate after 15 seconds (longer duration)
@@ -194,6 +203,7 @@ export default function NeuralCanvas({
             blackholeX,
             blackholeY,
             blackholeRadius,
+            blackholeVisualRadius,
             blackholeStrength,
         };
 

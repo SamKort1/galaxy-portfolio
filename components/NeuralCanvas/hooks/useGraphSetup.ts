@@ -54,8 +54,10 @@ export function useGraphSetup(
                 clusterId: id,
                 isHub: true,
             });
-            // satellites
-            const satellites = Math.round(12 * satelliteMultiplier);
+            // satellites - responsive to screen size
+            const baseSatellites = 12;
+            const responsiveMultiplier = Math.max(0.3, Math.min(1.0, screenSize / 1000)); // Scale from 30% to 100% based on screen size
+            const satellites = Math.round(baseSatellites * satelliteMultiplier * responsiveMultiplier);
             for (let i = 0; i < satellites; i++) {
                 const baseR = rand(orbitRadiusMin, orbitRadiusMax);
                 const theta = rand(0, Math.PI * 2);
@@ -92,18 +94,24 @@ export function useGraphSetup(
                     const dx = a.x - b.x,
                         dy = a.y - b.y;
                     const d2 = dx * dx + dy * dy;
-                    if (d2 < edgeDistance * edgeDistance && Math.random() < 0.08 * edgeMultiplier) edges.push({ a: a.id, b: b.id, clusterId: c.id });
+                    // Responsive edge probability based on screen size
+                    const responsiveEdgeProb = Math.max(0.03, Math.min(0.08, 0.08 * (screenSize / 1000))); // Scale from 3% to 8%
+                    if (d2 < edgeDistance * edgeDistance && Math.random() < responsiveEdgeProb * edgeMultiplier) edges.push({ a: a.id, b: b.id, clusterId: c.id });
                 }
             }
         }
 
-        // sparse cross edges
+        // sparse cross edges - responsive to screen size
         const ids = clusters.map((c) => c.id);
         for (let i = 0; i < ids.length; i++) {
             for (let j = i + 1; j < ids.length; j++) {
                 const A = clusterNodes(ids[i]).filter((n) => !n.isHub);
                 const B = clusterNodes(ids[j]).filter((n) => !n.isHub);
-                for (let k = 0; k < Math.round(5 * edgeMultiplier); k++) {
+                // Responsive cross edge count
+                const baseCrossEdges = 5;
+                const responsiveCrossMultiplier = Math.max(0.4, Math.min(1.0, screenSize / 1200)); // Scale from 40% to 100%
+                const crossEdgeCount = Math.round(baseCrossEdges * edgeMultiplier * responsiveCrossMultiplier);
+                for (let k = 0; k < crossEdgeCount; k++) {
                     const a = A[Math.floor(Math.random() * A.length)];
                     const b = B[Math.floor(Math.random() * B.length)];
                     if (a && b) edges.push({ a: a.id, b: b.id, clusterId: "cross", cross: true });

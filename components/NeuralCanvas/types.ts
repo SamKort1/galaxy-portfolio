@@ -82,3 +82,43 @@ export type NeuralCanvasProps = {
     aboutTimeline?: TimelineEntry[];
     aboutCVUrl?: string;
 };
+
+export interface StepEnv {
+    timeRef: React.MutableRefObject<number>;
+    prefersReducedMotion: boolean;
+    ctx: CanvasRenderingContext2D;
+    canvas: HTMLCanvasElement;
+    DPR: number;
+    size: { w: number; h: number };
+    graph: React.MutableRefObject<{ nodes: Node[]; edges: Edge[] }>;
+    anchors: React.MutableRefObject<Record<string, { x: number; y: number }>>;
+    transform: { sx: number; sy: number; tx: number; ty: number };
+    expandedCluster: Cluster["id"] | null;
+    hoverId: number | null;
+    hoverCluster: Cluster["id"] | null;
+    CALM: typeof import("./constants").CALM;
+    SHOOTING_COUNT: number;
+    shootingRef: React.MutableRefObject<{
+        x: number; y: number; vx: number; vy: number;
+        r: number; hue: number; life: number; maxLife: number;
+    }[]>;
+    clusters: Cluster[];
+    skills: Record<string, string[]>;
+    projects: Project[];
+    contactLinks: ContactLink[];
+    visited: React.MutableRefObject<Set<string>>;
+    projectHit: React.MutableRefObject<{ id: string; x: number; y: number; r: number }[]>;
+    attract: (node: { x: number; y: number; vx: number; vy: number }, target: { x: number; y: number }, strength: number) => void;
+    roundedRectPath: (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => void;
+    drawPillLabelAlpha: (ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color: { r: number; g: number; b: number }, alpha: number) => void;
+    aboutFacts: string[];
+    funFacts: string[];
+    labelFadeAlpha: number;
+    expandedFadeAlpha: number;
+    blackholeActive: boolean;
+    blackholeX: number;
+    blackholeY: number;
+    blackholeRadius: number;
+    blackholeVisualRadius: number;
+    blackholeStrength: number;
+}

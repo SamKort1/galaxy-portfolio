@@ -41,7 +41,7 @@ export function runStep(env: StepEnv, t: number, last: number) {
     
     // Draw blackhole if active
     if (env.blackholeActive) {
-        drawBlackhole(env.ctx, env.blackholeX, env.blackholeY, env.blackholeRadius, env.blackholeStrength, env.timeRef.current);
+        drawBlackhole(env.ctx, env.blackholeX, env.blackholeY, env.blackholeVisualRadius, env.blackholeStrength, env.timeRef.current);
     }
 
     return newLast;
