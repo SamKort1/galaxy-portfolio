@@ -22,6 +22,17 @@ export default function HomePage() {
         { id: "contact", name: "Contact", color: "#c55656", route: "#" },
     ];
 
+    // Make the contact modal function globally available
+    useEffect(() => {
+        (window as any).openContactModal = () => {
+            setContactOpen(true);
+        };
+        
+        return () => {
+            delete (window as any).openContactModal;
+        };
+    }, []);
+
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const [aboutProfileOpen, setAboutProfileOpen] = useState(false);
     const [aboutTimelineOpen, setAboutTimelineOpen] = useState(false);
@@ -44,8 +55,18 @@ export default function HomePage() {
                 setAboutSkillsOpen(false);
             }
         };
+        
+        const onOpenContactModal = () => {
+            setContactOpen(true);
+        };
+        
         window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
+        window.addEventListener("openContactModal", onOpenContactModal);
+        
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            window.removeEventListener("openContactModal", onOpenContactModal);
+        };
     }, []);
 
     type ProjectClickPayload =

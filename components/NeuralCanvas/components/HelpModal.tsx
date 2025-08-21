@@ -23,7 +23,7 @@ export function HelpModal({
     const handleCommand = (command: string) => {
         if (command.includes('help')) {
             setShowHelp(true);
-            setTimeout(() => setShowHelp(false), 10000);
+            setTimeout(() => setShowHelp(false), 60000);
         } else if (command.includes('matrix')) {
             setSecretTheme("matrix");
             setThemeFlash(true);
@@ -77,17 +77,19 @@ export function HelpModal({
                     }}
                 >
                     {/* Header */}
-                    <div className="flex items-start gap-3 p-4 sm:p-5 border-b border-white/10">
-                        <div
-                            className="h-9 w-9 rounded-xl shrink-0 flex items-center justify-center"
-                            style={{ background: `radial-gradient(60% 60% at 50% 50%, rgba(139,92,246,0.85) 0%, rgba(139,92,246,0.35) 60%, rgba(0,0,0,0) 100%)` }}
-                            aria-hidden
-                        >
-                            <span className="text-white text-sm">🎮</span>
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">Secret Commands</h2>
-                            <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">Discover hidden features and easter eggs</p>
+                    <div className="flex items-start justify-between p-4 sm:p-5 border-b border-white/10">
+                        <div className="flex items-start gap-3">
+                            <div
+                                className="h-9 w-9 rounded-xl shrink-0 flex items-center justify-center"
+                                style={{ background: `radial-gradient(60% 60% at 50% 50%, rgba(139,92,246,0.85) 0%, rgba(139,92,246,0.35) 60%, rgba(0,0,0,0) 100%)` }}
+                                aria-hidden
+                            >
+                                <span className="text-white text-sm">🎮</span>
+                            </div>
+                            <div className="min-w-0">
+                                <h2 className="text-lg md:text-xl font-semibold leading-tight text-white">Secret Commands</h2>
+                                <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2 max-w-[70%]">Discover hidden features and easter eggs</p>
+                            </div>
                         </div>
                         <button
                             onClick={() => setShowHelp(false)}
@@ -108,7 +110,7 @@ export function HelpModal({
                                 {SECRET_COMMANDS.map(cmd => (
                                     <div key={cmd.command} className="flex justify-between items-center p-3 rounded-lg bg-white/5 border border-white/10">
                                         <span className="text-purple-400 font-mono text-sm">{cmd.command}</span>
-                                        <span className="text-gray-300 text-sm">{cmd.description}</span>
+                                        <span className="text-gray-300 text-sm text-right">{cmd.description}</span>
                                     </div>
                                 ))}
                             </div>

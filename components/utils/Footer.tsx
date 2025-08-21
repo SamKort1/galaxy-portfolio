@@ -10,7 +10,8 @@ export default function Footer() {
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
+            // Use a more conservative breakpoint for mobile devices
+            setIsMobile(window.innerWidth <= 932);
         };
 
         checkMobile();
@@ -49,12 +50,36 @@ export default function Footer() {
                     >
                         {/* Email Bubble */}
                         <div
-                            className={`fixed bottom-20 left-4 w-12 h-12 bg-cyan-400/20 hover:bg-cyan-400/30 border border-cyan-400/30 backdrop-blur-sm rounded-full shadow-lg transform transition-all duration-300 ease-out ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-75'
+                            className={`fixed bottom-20 left-4 w-12 h-12 bg-cyan-400/20 hover:bg-cyan-400/30 border border-cyan-400/30 backdrop-blur-sm rounded-full shadow-lg transform transition-all duration-300 ease-out z-60 ${isAnimating ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-75'
                                 }`}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                // Open contact modal instead of mail client
-                                window.dispatchEvent(new CustomEvent('openContactModal'));
+                                e.preventDefault();
+                                // Open contact modal
+                                try {
+                                    window.dispatchEvent(new CustomEvent('openContactModal'));
+                                } catch (error) {
+                                    // Fallback to global function
+                                    if ((window as any).openContactModal) {
+                                        (window as any).openContactModal();
+                                    }
+                                }
+                                // Close the menu
+                                handleMenuToggle();
+                            }}
+                            onTouchEnd={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                // Open contact modal
+                                try {
+                                    window.dispatchEvent(new CustomEvent('openContactModal'));
+                                } catch (error) {
+                                    // Fallback to global function
+                                    if ((window as any).openContactModal) {
+                                        (window as any).openContactModal();
+                                    }
+                                }
+                                // Close the menu
                                 handleMenuToggle();
                             }}
                             style={{ transitionDelay: isAnimating ? '0ms' : '0ms' }}
@@ -134,13 +159,13 @@ export default function Footer() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <a
-                            href="mailto:samkort@hotmail.nl"
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('openContactModal'))}
                             className="hover:text-cyan-400 transition-colors duration-200 flex items-center gap-1 group"
                         >
                             <span className="group-hover:scale-110 transition-transform duration-200">📧</span>
                             <span>Email</span>
-                        </a>
+                        </button>
                         <a
                             href="https://github.com/"
                             target="_blank"
