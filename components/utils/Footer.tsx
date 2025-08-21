@@ -58,10 +58,11 @@ export default function Footer() {
                                 // Open contact modal
                                 try {
                                     window.dispatchEvent(new CustomEvent('openContactModal'));
-                                } catch (error) {
+                                } catch {
                                     // Fallback to global function
-                                    if ((window as any).openContactModal) {
-                                        (window as any).openContactModal();
+                                    const openContactModal = (window as Window & { openContactModal?: () => void }).openContactModal;
+                                    if (openContactModal) {
+                                        openContactModal();
                                     }
                                 }
                                 // Close the menu
@@ -73,10 +74,11 @@ export default function Footer() {
                                 // Open contact modal
                                 try {
                                     window.dispatchEvent(new CustomEvent('openContactModal'));
-                                } catch (error) {
+                                } catch {
                                     // Fallback to global function
-                                    if ((window as any).openContactModal) {
-                                        (window as any).openContactModal();
+                                    const openContactModal = (window as Window & { openContactModal?: () => void }).openContactModal;
+                                    if (openContactModal) {
+                                        openContactModal();
                                     }
                                 }
                                 // Close the menu

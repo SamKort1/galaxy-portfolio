@@ -24,12 +24,12 @@ export default function HomePage() {
 
     // Make the contact modal function globally available
     useEffect(() => {
-        (window as any).openContactModal = () => {
+        (window as Window & { openContactModal?: () => void }).openContactModal = () => {
             setContactOpen(true);
         };
         
         return () => {
-            delete (window as any).openContactModal;
+            delete (window as Window & { openContactModal?: () => void }).openContactModal;
         };
     }, []);
 

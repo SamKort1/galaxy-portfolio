@@ -1,5 +1,6 @@
 "use client";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import type { Project } from "../../app/data/projects";
 
 type Props = {
@@ -15,9 +16,9 @@ type Props = {
 
 const CLUSTER_COLORS: Record<Project["cluster"], string> = {
     frontend: "#22d3ee",
-    backend:  "#34d399",
-    ai:       "#f59e0b",
-    cloud:    "#60a5fa",
+    backend: "#34d399",
+    ai: "#f59e0b",
+    cloud: "#60a5fa",
 };
 
 export default function ProjectModal({ project, onClose, onPrev, onNext }: Props) {
@@ -88,7 +89,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
             await navigator.clipboard.writeText(url);
             setCopied(true);
             setTimeout(() => setCopied(false), 1200);
-        } catch {}
+        } catch { }
     };
 
     return (
@@ -127,7 +128,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                         <div className="flex items-start gap-3 flex-1 min-w-0">
                             <div
                                 className="h-9 w-9 rounded-xl shrink-0"
-                                style={{ background: `radial-gradient(60% 60% at 50% 50%, ${hexToRgba(color,0.85)} 0%, ${hexToRgba(color,0.35)} 60%, rgba(0,0,0,0) 100%)` }}
+                                style={{ background: `radial-gradient(60% 60% at 50% 50%, ${hexToRgba(color, 0.85)} 0%, ${hexToRgba(color, 0.35)} 60%, rgba(0,0,0,0) 100%)` }}
                                 aria-hidden
                             />
                             <div className="min-w-0 flex-1">
@@ -135,7 +136,7 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                 <p className="text-xs text-gray-300/90 mt-0.5 line-clamp-2">{project.description}</p>
                             </div>
                         </div>
-                        
+
                         {/* Close button - positioned absolutely on mobile */}
                         <button
                             onClick={onClose}
@@ -146,51 +147,51 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                         </button>
                     </div>
 
-                                         {/* Tech chips and Actions on same line */}
-                     <div className="flex items-center justify-between gap-3">
-                         {/* Tech chips */}
-                         {project.tech?.length > 0 && (
-                             <div className="flex flex-wrap gap-1.5">
-                                 {project.tech.map((t: string) => (
-                                     <span
-                                         key={t}
-                                         className="text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-gray-200"
-                                     >
-                                         {t}
-                                     </span>
-                                 ))}
-                             </div>
-                         )}
-                         
-                         {/* Actions */}
-                         <div className="flex items-center gap-2">
-                             {project.repoUrl && (
-                                 <a
-                                     href={project.repoUrl}
-                                     target="_blank"
-                                     className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center justify-center"
-                                 >
-                                     GitHub <span className="ml-1">↗</span>
-                                 </a>
-                             )}
-                             {project.demoUrl && (
-                                 <a
-                                     href={project.demoUrl}
-                                     target="_blank"
-                                     className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center justify-center"
-                                 >
-                                     Live <span className="ml-1">↗</span>
-                                 </a>
-                             )}
-                             <button
-                                 onClick={copyShare}
-                                 className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100"
-                                 title="Copy share link"
-                             >
-                                 {copied ? "Copied!" : "Share"}
-                             </button>
-                         </div>
-                     </div>
+                    {/* Tech chips and Actions on same line */}
+                    <div className="flex items-center justify-between gap-3">
+                        {/* Tech chips */}
+                        {project.tech?.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {project.tech.map((t: string) => (
+                                    <span
+                                        key={t}
+                                        className="text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-gray-200"
+                                    >
+                                        {t}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                            {project.repoUrl && (
+                                <a
+                                    href={project.repoUrl}
+                                    target="_blank"
+                                    className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center justify-center"
+                                >
+                                    GitHub <span className="ml-1">↗</span>
+                                </a>
+                            )}
+                            {project.demoUrl && (
+                                <a
+                                    href={project.demoUrl}
+                                    target="_blank"
+                                    className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100 inline-flex items-center justify-center"
+                                >
+                                    Live <span className="ml-1">↗</span>
+                                </a>
+                            )}
+                            <button
+                                onClick={copyShare}
+                                className="px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs sm:text-sm text-gray-100"
+                                title="Copy share link"
+                            >
+                                {copied ? "Copied!" : "Share"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Body */}
@@ -213,12 +214,13 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                     aria-hidden={idx !== active}
                                 >
                                     {m.type === "image" ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
+                                        <Image
                                             src={m.src}
                                             alt={project.title}
-                                            className="h-full w-full object-cover"
+                                            fill
+                                            className="object-cover"
                                             draggable={false}
+                                            sizes="(max-width: 768px) 100vw, 50vw"
                                         />
                                     ) : (
                                         <video
@@ -281,8 +283,13 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
                                         title={`Slide ${i + 1}`}
                                     >
                                         {m.type === "image" ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={m.src} alt="" className="h-full w-full object-cover" />
+                                            <Image
+                                                src={m.src}
+                                                alt=""
+                                                fill
+                                                className="object-cover"
+                                                sizes="80px"
+                                            />
                                         ) : (
                                             <div className="h-full w-full grid place-items-center text-xs text-white/80 bg-black/40">Video</div>
                                         )}
@@ -373,8 +380,8 @@ export default function ProjectModal({ project, onClose, onPrev, onNext }: Props
 /* utils */
 function hexToRgba(hex: string, a = 1) {
     const h = hex.replace("#", "");
-    const r = parseInt(h.slice(0,2), 16);
-    const g = parseInt(h.slice(2,4), 16);
-    const b = parseInt(h.slice(4,6), 16);
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
     return `rgba(${r},${g},${b},${a})`;
 }
